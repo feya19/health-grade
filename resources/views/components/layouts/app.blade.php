@@ -3,7 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- Viewport disesuaikan untuk PWA agar tidak bisa di-zoom (aplikasi native feel) --}}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     @PwaHead
     <title>{{ $title ?? 'HealthGrade Dashboard' }}</title>
 
@@ -13,6 +15,7 @@
 
 <body class="bg-hg-bg font-sans text-hg-dark antialiased" x-data="{ sidebarOpen: false }">
 
+    {{-- Form Logout Hidden (Tetap disimpan untuk fungsi logout via button di halaman lain) --}}
     <form method="POST" action="{{ route('logout') }}" id="logout-form" class="hidden">
         @csrf
     </form>
