@@ -76,12 +76,12 @@
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <flux:button href="{{ route('register') }}" class="!bg-hg-primary !text-white hover:!bg-hg-secondary !border-0 !h-14 !px-8 !text-lg !rounded-2xl shadow-xl shadow-hg-primary/20 transition-transform hover:-translate-y-1">
+                <flux:button href="{{ route('scan.barcode') }}" class="!bg-hg-primary !text-white hover:!bg-hg-secondary !border-0 !h-14 !px-8 !text-lg !rounded-2xl shadow-xl shadow-hg-primary/20 transition-transform hover:-translate-y-1">
                     Mulai Scan Sekarang
                 </flux:button>
-                <flux:button href="#carakerja" variant="subtle" class="!bg-white !text-hg-dark !border-gray-200 hover:!border-hg-primary hover:!text-hg-primary !h-14 !px-8 !text-lg !rounded-2xl">
+                {{-- <flux:button href="#carakerja" variant="subtle" class="!bg-white !text-hg-dark !border-gray-200 hover:!border-hg-primary hover:!text-hg-primary !h-14 !px-8 !text-lg !rounded-2xl">
                     Pelajari Cara Kerja
-                </flux:button>
+                </flux:button> --}}
             </div>
 
              {{-- Product Scan Preview Mockup --}}

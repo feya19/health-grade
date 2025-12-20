@@ -5,18 +5,17 @@ use App\Livewire\Dashboard;
 use App\Livewire\History;
 use App\Livewire\ScanDetail;
 use App\Livewire\ScanBarcode;
+use App\Livewire\AiConsultation;
 
 Route::view('/', 'welcome');
 
-// Route::get('/dashboard', Dashboard::class)
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
+Route::get('/scan', ScanBarcode::class)->name('scan.barcode');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/history', History::class)->name('history');
     Route::get('/scan/{id}', ScanDetail::class)->name('scan.detail');
-    Route::get('/scan', ScanBarcode::class)->name('scan.barcode');
+    Route::get('/assistant', AiConsultation::class)->name('assistant');
 });
 
 Route::view('profile', 'profile')

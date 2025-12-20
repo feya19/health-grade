@@ -1,66 +1,115 @@
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
     
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    {{-- HEADER --}}
+    <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 mb-8">
         <div>
-            <h1 class="text-2xl font-bold text-hg-dark">Riwayat Scan</h1>
-            <p class="text-gray-500 text-sm">Semua produk yang pernah Anda analisis.</p>
+            <h1 class="text-3xl font-bold text-hg-dark">Riwayat Scan</h1>
+            <p class="text-gray-500 text-sm mt-1">Daftar makanan yang telah Anda scan atau konsumsi.</p>
         </div>
 
-        <div class="flex gap-2">
-            <div class="relative">
-                <input wire:model.live="search" type="text" placeholder="Cari nama produk..." class="pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:border-hg-primary focus:ring-hg-primary text-sm w-full md:w-64 transition">
-                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <div class="flex gap-2 w-full md:w-auto">
+            <div class="relative w-full md:w-64">
+                <input 
+                    wire:model.live.debounce.300ms="search" 
+                    type="text" 
+                    placeholder="Cari makanan..." 
+                    class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-hg-primary/20 focus:border-hg-primary outline-none transition"
+                >
+                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
             </div>
 
-            <select wire:model.live="filterGrade" class="pl-3 pr-8 py-2 rounded-xl border border-gray-200 focus:border-hg-primary focus:ring-hg-primary text-sm bg-white transition cursor-pointer">
-                <option value="all">Semua Grade</option>
-                <option value="A">Grade A (Sehat)</option>
+            <select wire:model.live="filterGrade" class="px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-hg-primary/20 focus:border-hg-primary outline-none cursor-pointer">
+                <option value="all">Filter</option>
+                <option value="A">Grade A</option>
                 <option value="B">Grade B</option>
                 <option value="C">Grade C</option>
-                <option value="D">Grade D (Kurangi)</option>
+                <option value="D">Grade D</option>
             </select>
         </div>
     </div>
 
-    @if($history->isEmpty())
-        <div class="text-center py-20 bg-white rounded-3xl border border-gray-100 border-dashed">
-            <div class="inline-flex p-4 rounded-full bg-gray-50 mb-4 text-gray-400">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <p class="text-gray-500 font-medium">Tidak ada produk ditemukan.</p>
-        </div>
-    @else
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($history as $item)
-                <a href="{{ route('scan.detail', $item['id']) }}" wire:navigate class="group bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-hg-primary/30 transition-all flex items-center gap-4">
+    {{-- LIST CONTENT --}}
+    <div class="space-y-4">
+        @forelse ($history as $item)
+            {{-- PERUBAHAN: Menggunakan <a> tag dengan href ke scan.detail dan wire:navigate --}}
+            <a href="{{ route('scan.detail', ['id' => $item->food->id]) }}" 
+               wire:navigate
+               class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-hg-primary/30 transition flex items-center gap-4 group block cursor-pointer relative overflow-hidden"
+            >
+                {{-- Efek Hover halus --}}
+                <div class="absolute inset-0 bg-hg-primary/0 group-hover:bg-hg-primary/5 transition-colors duration-300"></div>
+
+                {{-- Grade Indicator --}}
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0 relative z-10
+                    {{ match($item->food->grade) {
+                        'A' => 'bg-green-500 shadow-green-500/30',
+                        'B' => 'bg-lime-500 shadow-lime-500/30',
+                        'C' => 'bg-yellow-400 shadow-yellow-400/30',
+                        'D' => 'bg-red-500 shadow-red-500/30',
+                        default => 'bg-gray-300'
+                    } }} shadow-lg">
+                    {{ $item->food->grade }}
+                </div>
+
+                {{-- Product Info --}}
+                <div class="flex-1 min-w-0 relative z-10">
+                    <h3 class="font-bold text-hg-dark truncate text-lg group-hover:text-hg-primary transition">
+                        {{ $item->food->name }}
+                    </h3>
+                    <p class="text-sm text-gray-400 truncate">{{ $item->food->brand ?? 'Tanpa Merk' }}</p>
+                </div>
+
+                {{-- Stats & Action --}}
+                <div class="text-right flex flex-col md:flex-row items-end md:items-center gap-2 md:gap-6 relative z-10">
                     
-                    <div class="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0 text-gray-300 group-hover:bg-hg-bg group-hover:text-hg-primary transition">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <div>
+                        <div class="font-bold text-hg-dark">
+                            {{ floatval($item->total_calories_intaken) }} kkal
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            {{ $item->quantity }} x sajian
+                        </div>
                     </div>
 
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-hg-dark truncate group-hover:text-hg-primary transition">{{ $item['name'] }}</h3>
-                        <p class="text-xs text-gray-400 mb-2">{{ $item['date'] }} • {{ $item['calories'] }} kkal</p>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="text-xs text-gray-400">{{ $item->created_at->format('d M Y, H:i') }}</span>
                         
-                        @php
-                            $colors = match($item['grade']) {
-                                'A' => 'bg-green-100 text-green-700 border-green-200',
-                                'B' => 'bg-lime-100 text-lime-700 border-lime-200',
-                                'C' => 'bg-orange-100 text-orange-700 border-orange-200',
-                                'D' => 'bg-red-100 text-red-700 border-red-200',
-                                default => 'bg-gray-100 text-gray-500'
-                            };
-                        @endphp
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border {{ $colors }}">
-                            Grade {{ $item['grade'] }}
-                        </span>
+                        @if($item->action_type === 'consumed')
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">
+                                Dimakan
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">
+                                Scan Saja
+                            </span>
+                        @endif
                     </div>
+                    
+                    {{-- Chevron Icon (Optional: untuk memperjelas ini bisa diklik) --}}
+                    <div class="hidden md:block text-gray-300 group-hover:text-hg-primary transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        @empty
+            <div class="text-center py-20">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-hg-dark">Tidak ada riwayat</h3>
+                <p class="text-gray-500">Belum ada makanan yang discan sesuai filter ini.</p>
+            </div>
+        @endforelse
+    </div>
 
-                    <div class="text-gray-300 group-hover:translate-x-1 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-    @endif
+    {{-- PAGINATION --}}
+    <div class="mt-8">
+        {{ $history->links() }} 
+    </div>
 </div>
