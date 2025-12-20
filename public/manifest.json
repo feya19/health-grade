@@ -1,0 +1,16 @@
+{
+    "name": "HealthGrade",
+    "short_name": "HG",
+    "background_color": "#005461",
+    "display": "fullscreen",
+    "description": "A Progressive Web Application for HealthGrade",
+    "theme_color": "#018790",
+    "start_url": "/",
+    "icons": [
+        {
+            "src": "logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
