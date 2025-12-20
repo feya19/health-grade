@@ -22,7 +22,11 @@
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-transform duration-300 md:relative md:translate-x-0">
             <div class="h-20 flex items-center px-8 border-b border-gray-100">
                 <div class="w-8 h-8 bg-hg-primary rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 0 0-7.75 14.65L2 22l5.35-2.25A10 10 0 1 0 12 2z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a10 10 0 0 0-7.75 14.65L2 22l5.35-2.25A10 10 0 1 0 12 2z"/>
+                        <path d="M8 12h8"/>
+                        <path d="M12 8v8"/>
+                    </svg>
                 </div>
                 <span class="text-xl font-bold text-hg-dark">HealthGrade</span>
             </div>
@@ -38,10 +42,10 @@
                     Scan Barcode
                 </a>
 
-                {{-- <a href="/riwayat-nutrisi" class="text-gray-500 hover:bg-gray-50 hover:text-hg-dark flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium">
+                <a href="/riwayat-nutrisi" class="text-gray-500 hover:bg-gray-50 hover:text-hg-dark flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     Riwayat Nutrisi
-                </a> --}}
+                </a>
 
                  <a href="/profile" class="text-gray-500 hover:bg-gray-50 hover:text-hg-dark flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>

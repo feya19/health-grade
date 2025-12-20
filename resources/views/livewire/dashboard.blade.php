@@ -56,6 +56,58 @@
         </div>
     </div>
 
+     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8 relative overflow-hidden group">
+         <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-red-500/5 rounded-full blur-3xl group-hover:bg-red-500/10 transition-colors"></div>
+         
+         <div class="relative z-10 flex flex-col md:flex-row gap-8 items-center">
+             
+             <div class="flex-1 w-full">
+                 <div class="flex items-center gap-3 mb-2">
+                     <div class="p-2 bg-red-50 rounded-lg text-red-500">
+                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
+                     </div>
+                     <h3 class="font-bold text-lg text-hg-dark">Target Kalori Harian (BMR)</h3>
+                 </div>
+                 <p class="text-gray-500 text-sm mb-6">
+                     Dihitung berdasarkan profil tubuh Anda ({{ $stats['user_weight'] }}kg / {{ $stats['user_height'] }}cm). <br>
+                     Jagalah asupan kalori agar tetap bertenaga namun ideal.
+                 </p>
+ 
+                 <div class="flex items-end gap-1">
+                     <span class="text-4xl font-extrabold text-hg-dark">{{ $stats['calories_current'] }}</span>
+                     <span class="text-lg text-gray-400 font-medium mb-1">/ {{ $stats['calories_target'] }} kkal</span>
+                 </div>
+             </div>
+ 
+             <div class="w-full md:w-1/2">
+                 <div class="flex justify-between text-sm font-medium mb-2">
+                     <span class="{{ $stats['calories_current'] > $stats['calories_target'] ? 'text-red-500' : 'text-hg-primary' }}">
+                         {{ round(($stats['calories_current'] / $stats['calories_target']) * 100) }}% Terpenuhi
+                     </span>
+                     <span class="text-gray-400">Sisa: {{ max(0, $stats['calories_target'] - $stats['calories_current']) }} kkal</span>
+                 </div>
+                 
+                 <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+                     <div class="h-full rounded-full transition-all duration-1000 ease-out relative 
+                         {{ $stats['calories_current'] > $stats['calories_target'] ? 'bg-red-500' : 'bg-gradient-to-r from-orange-400 to-red-500' }}" 
+                         style="width: {{ min(100, ($stats['calories_current'] / $stats['calories_target']) * 100) }}%">
+                         
+                         <div class="absolute inset-0 bg-white/30 w-full animate-[shimmer_2s_infinite] skew-x-12 -translate-x-full"></div>
+                     </div>
+                 </div>
+                 
+                 @if($stats['calories_current'] > $stats['calories_target'])
+                     <p class="text-xs text-red-500 mt-2 font-medium flex items-center gap-1">
+                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                         Anda telah melebihi batas kalori harian.
+                     </p>
+                 @else
+                     <p class="text-xs text-gray-400 mt-2">Tetap pantau asupan Gula & Lemak meski kalori masih aman.</p>
+                 @endif
+             </div>
+         </div>
+     </div>
+
     <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h3 class="font-bold text-hg-dark text-lg">Riwayat Scan Terakhir</h3>
