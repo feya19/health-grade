@@ -67,7 +67,7 @@
             <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-hg-dark mb-8 leading-tight max-w-5xl mx-auto">
                 Jangan Asal Makan, <br class="hidden md:block" />
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-hg-primary to-hg-secondary">
-                    Pindai Barcode, Pahami Nutrisi.
+                    Pahami Nutrisi.
                 </span>
             </h1>
 
@@ -240,7 +240,7 @@
                         <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm text-hg-primary group-hover:bg-hg-primary group-hover:text-white transition-colors relative z-10">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                         </div>
-                        <h3 class="text-xl font-bold mb-3 text-hg-dark relative z-10">#Peran Asisten AI</h3>
+                        <h3 class="text-xl font-bold mb-3 text-hg-dark relative z-10">Peran AI</h3>
                         <p class="text-gray-600 font-medium leading-relaxed relative z-10">
                             Bertindak sebagai asisten pribadi Anda untuk melacak akumulasi nutrisi harian dan memberikan analisis kesehatan yang dipersonalisasi saat Anda membutuhkan informasi lebih lanjut.
                         </p>
