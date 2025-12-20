@@ -5,6 +5,7 @@ use App\Livewire\Dashboard;
 use App\Livewire\History;
 use App\Livewire\ScanDetail;
 use App\Livewire\ScanBarcode;
+use App\Livewire\ProductDetail;
 
 Route::view('/', 'welcome');
 
@@ -17,6 +18,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/history', History::class)->name('history');
     Route::get('/scan/{id}', ScanDetail::class)->name('scan.detail');
     Route::get('/scan', ScanBarcode::class)->name('scan.barcode');
+    Route::get('/product/{barcode}', ProductDetail::class)->name('product.detail');
 });
 
 Route::view('profile', 'profile')
