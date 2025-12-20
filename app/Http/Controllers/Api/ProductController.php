@@ -71,11 +71,9 @@ class ProductController extends Controller
         $sugars = $product['nutriments']['sugars_100g'] ?? null;
         $saturatedFat = $product['nutriments']['saturated-fat_100g'] ?? null;
 
-        // Get individual grades
         $sugarGrade = $this->getGrade('sugar', $sugars);
         $fatGrade = $this->getGrade('saturated_fat', $saturatedFat);
 
-        // Get final grade
         $finalGrade = $this->getFinalGrade($sugarGrade, $fatGrade);
 
         return response()->json([
@@ -95,7 +93,7 @@ class ProductController extends Controller
                 'sodium_100g' => $product['nutriments']['sodium_100g'] ?? null,
             ],
             'health_grade' => [
-                'sugar_grade' => $sugarGrade,   
+                'sugar_grade' => $sugarGrade,
                 'saturated_fat_grade' => $fatGrade,
                 'final_grade' => $finalGrade,
             ],
