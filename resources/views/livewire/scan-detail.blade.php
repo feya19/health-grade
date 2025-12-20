@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-hg-light pb-28">
+<div class="min-h-screen bg-white pb-28">
     
     {{-- 1. TOP HEADER (Sticky) --}}
     <div class="bg-white px-4 py-4 sticky top-0 z-30 shadow-sm flex items-center gap-3">
@@ -121,7 +121,7 @@
     </div>
 
     {{-- 5. BOTTOM NAVIGATION BAR (Fixed) --}}
-    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] rounded-t-[2rem]">
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] ">
         <div class="flex justify-between items-center max-w-lg mx-auto relative">
             
             {{-- Home --}}

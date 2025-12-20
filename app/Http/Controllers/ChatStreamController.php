@@ -8,44 +8,51 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ChatStreamController extends Controller
 {
+    /**
+     * Get LLM configuration
+     */
+    protected function getLlmConfig(): array
+    {
+        return [
+            'endpoint' => config('app.llm_model.endpoint'),
+            'model' => config('app.llm_model.default'),
+            'api_key' => config('app.llm_model.api_key'),
+        ];
+    }
+
+    /**
+     * Streaming response for chat (real-time typing effect)
+     */
     public function stream(Request $request)
     {
         $messages = $request->input('messages', []);
-        
-        $endpoint = config('app.llm_model.endpoint');
-        $model = config('app.llm_model.default');
-        $apiKey = config('app.llm_model.api_key');
+        $config = $this->getLlmConfig();
 
-        return new StreamedResponse(function () use ($endpoint, $model, $apiKey, $messages) {
-            // Disable output buffering for real-time streaming
+        return new StreamedResponse(function () use ($config, $messages) {
             if (ob_get_level()) {
                 ob_end_clean();
             }
             
             $response = Http::withOptions([
                 'stream' => true,
-                'timeout' => 120, // 2 minutes timeout
-            ])->post($endpoint . 'chat/completions', [
-                'model' => $model,
+                'timeout' => 120,
+            ])->post($config['endpoint'] . 'chat/completions', [
+                'model' => $config['model'],
                 'messages' => $messages,
                 'stream' => true,
             ]);
 
             $stream = $response->getBody();
-            $buffer = '';
             
-            // Use larger buffer size to prevent data loss
             while (!$stream->eof()) {
-                $chunk = $stream->read(8192); // Increased from 1024 to 8192
+                $chunk = $stream->read(8192);
                 
                 if ($chunk === false || $chunk === '') {
                     continue;
                 }
                 
-                // Echo the chunk immediately
                 echo $chunk;
                 
-                // Force flush to client
                 if (function_exists('fastcgi_finish_request')) {
                     fastcgi_finish_request();
                 } else {
@@ -55,8 +62,7 @@ class ChatStreamController extends Controller
                     flush();
                 }
                 
-                // Small delay to prevent overwhelming the client
-                usleep(1000); // 1ms
+                usleep(1000);
             }
         }, 200, [
             'Content-Type' => 'text/event-stream',
@@ -64,5 +70,45 @@ class ChatStreamController extends Controller
             'Connection' => 'keep-alive',
             'X-Accel-Buffering' => 'no',
         ]);
+    }
+
+    /**
+     * Single non-streaming response (for AI Vision extraction, quick queries)
+     */
+    public function response(Request $request)
+    {
+        $messages = $request->input('messages', []);
+        $config = $this->getLlmConfig();
+
+        try {
+            $response = Http::timeout(60)
+                ->post($config['endpoint'] . 'chat/completions', [
+                    'model' => $config['model'],
+                    'messages' => $messages,
+                    'stream' => false,
+                ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'AI service error: ' . $response->status()
+                ], 500);
+            }
+
+            $data = $response->json();
+            $content = $data['choices'][0]['message']['content'] ?? null;
+
+            return response()->json([
+                'success' => true,
+                'content' => $content,
+                'usage' => $data['usage'] ?? null,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to get AI response: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

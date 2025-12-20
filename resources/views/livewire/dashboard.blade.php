@@ -1,9 +1,9 @@
 {{-- PERBAIKAN: Gunakan fixed inset-0 agar menutupi Sidebar layout utama --}}
-<div class="fixed inset-0 bg-hg-light overflow-y-auto pb-28">
+<div class="fixed inset-0 bg-white overflow-y-auto pb-28">
     
     {{-- 1. TOP BAR (Mobile Header) --}}
     {{-- Menggunakan sticky top-0 agar tetap terlihat saat scroll --}}
-    <div class="bg-white px-6 pt-8 pb-6 rounded-b-[2rem] shadow-sm sticky top-0 z-30">
+    <div class="bg-white px-6 pt-8 pb-6  shadow-sm sticky top-0 z-30">
         <div class="flex justify-between items-center">
             <div>
                 <p class="text-sm text-gray-400 font-medium">Selamat Datang,</p>
@@ -133,7 +133,7 @@
     </div>
 
     {{-- 5. BOTTOM NAVIGATION BAR (PWA Style - Fixed) --}}
-    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] rounded-t-[2rem]">
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] ">
         <div class="flex justify-between items-center max-w-lg mx-auto relative">
             
             {{-- Home (Active) --}}

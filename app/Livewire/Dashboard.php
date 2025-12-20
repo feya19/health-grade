@@ -47,12 +47,25 @@ class Dashboard extends Component
             ->get();
 
         // Agregasi Nutrisi
+        // total_calories_intaken sudah dihitung berdasarkan serving_size_g di consume endpoint
         $currentCalories = $todayHistories->sum('total_calories_intaken');
         
-        // Hitung total GGL (Gula Garam Lemak) manual dari relasi food * quantity
-        $sugarConsumed = $todayHistories->sum(fn($h) => $h->food->sugar_g * $h->quantity);
-        $fatConsumed = $todayHistories->sum(fn($h) => $h->food->fat_total_g * $h->quantity);
-        $saltConsumed = $todayHistories->sum(fn($h) => $h->food->salt_mg * $h->quantity);
+        // Hitung total GGL (Gula Garam Lemak) berdasarkan serving_size_g
+        // Nilai nutrisi di food adalah per 100g, jadi: (nutrisi/100) * serving_size_g * quantity
+        $sugarConsumed = $todayHistories->sum(function($h) {
+            $servingG = $h->food->serving_size_g ?? 100;
+            return ($h->food->sugar_g / 100) * $servingG * $h->quantity;
+        });
+        
+        $fatConsumed = $todayHistories->sum(function($h) {
+            $servingG = $h->food->serving_size_g ?? 100;
+            return ($h->food->fat_total_g / 100) * $servingG * $h->quantity;
+        });
+        
+        $saltConsumed = $todayHistories->sum(function($h) {
+            $servingG = $h->food->serving_size_g ?? 100;
+            return ($h->food->salt_mg / 100) * $servingG * $h->quantity;
+        });
 
         // Batas Harian (Hardcoded standar Kemenkes/WHO untuk umum)
         // Gula: 50g, Garam: 2000mg, Lemak: 67g

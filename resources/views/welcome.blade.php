@@ -12,45 +12,41 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @fluxStyles
     </head>
-    <body class="min-h-screen bg-hg-light text-hg-dark font-sans antialiased selection:bg-hg-primary selection:text-white pb-24 md:pb-0">
+    <body class="min-h-screen flex flex-col bg-hg-light text-hg-dark font-sans antialiased selection:bg-hg-primary selection:text-white">
 
-        {{-- 1. NAVBAR (Desktop: Full, Mobile: Minimal) --}}
-        <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-            <div class="container mx-auto px-6 h-16 md:h-20 flex justify-between items-center">
+        {{-- 1. NAVBAR (Mobile-first with icons) --}}
+        <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+            <div class="container mx-auto px-4 h-14 md:h-16 flex justify-between items-center">
                 {{-- Logo --}}
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 md:w-10 md:h-10 bg-hg-primary rounded-xl flex items-center justify-center shadow-lg shadow-hg-primary/20 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 md:w-9 md:h-9 bg-hg-primary rounded-lg flex items-center justify-center shadow-md shadow-hg-primary/20 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 2a10 10 0 0 0-7.75 14.65L2 22l5.35-2.25A10 10 0 1 0 12 2z"/>
                             <path d="M8 12h8"/><path d="M12 8v8"/>
                         </svg>
                     </div>
-                    <span class="text-lg md:text-xl font-bold tracking-tight text-hg-dark">HealthGrade</span>
-                </div>
+                    <span class="text-base md:text-lg font-bold tracking-tight text-hg-dark">HealthGrade</span>
+                </a>
 
-                {{-- Desktop Menu --}}
-                <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
-                    <a href="#carakerja" class="hover:text-hg-primary transition-colors">Cara Kerja</a>
-                    <a href="#sistemgrade" class="hover:text-hg-primary transition-colors">Sistem Grade</a>
-                    <a href="#fiturai" class="hover:text-hg-primary transition-colors">Peran AI</a>
-                </div>
-
-                {{-- Desktop Buttons --}}
-                <div class="hidden md:flex items-center gap-3">
+                {{-- Auth Buttons (Icons on mobile, Icons+Text on desktop) --}}
+                <div class="flex items-center gap-2">
                     @if (Route::has('login'))
                         @auth
-                            <flux:button href="{{ url('/dashboard') }}" class="!bg-hg-primary !text-white hover:!bg-hg-secondary !border-0 !rounded-full !px-6">
-                                Dashboard
-                            </flux:button>
+                            {{-- Dashboard Button --}}
+                            <a href="{{ url('/dashboard') }}" class="flex items-center gap-2 px-3 py-2 md:px-4 bg-hg-primary text-white rounded-lg hover:bg-hg-secondary transition font-medium text-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                                </svg>
+                                <span class="hidden md:inline">Dashboard</span>
+                            </a>
                         @else
-                            <flux:button href="{{ route('login') }}" variant="ghost" class="!text-hg-dark hover:!bg-gray-100 !rounded-full">
-                                Masuk
-                            </flux:button>
-                            @if (Route::has('register'))
-                                <flux:button href="{{ route('register') }}" class="!bg-hg-dark !text-white hover:!bg-hg-secondary !border-0 !rounded-full shadow-md">
-                                    Daftar
-                                </flux:button>
-                            @endif
+                            {{-- Login Button --}}
+                            <a href="{{ route('login') }}" class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-hg-primary hover:bg-gray-100 rounded-lg transition font-medium text-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                </svg>
+                                <span class="hidden md:inline">Masuk</span>
+                            </a>
                         @endauth
                     @endif
                 </div>
@@ -84,10 +80,10 @@
             {{-- ACTION BUTTONS --}}
             <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <flux:button 
-                    href="{{ route('dashboard') }}" 
-                    class="!bg-white !text-teal-500 !border-2 !border-teal-500 hover:!bg-teal-50 !h-14 !px-8 !text-lg !rounded-2xl shadow-lg shadow-teal-500/10 transition-transform hover:-translate-y-1"
+                    href="{{ route('scan.barcode') }}" 
+                    class="text-xl !bg-teal-500 !text-white !text-center !font-bold !py-6 !px-8 !rounded-xl !shadow-lg !shadow-teal-500/30 !active:scale-95 !transition-transform"
                 >
-                    Dashboard
+                    Scan Sekarang
                 </flux:button>
             </div>
         </header>
@@ -132,16 +128,16 @@
         </section>
 
         {{-- 4. STICKY BOTTOM ACTION BAR (Mobile Only - PWA Feel) --}}
-        <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 p-4 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-[2rem]">
+        <!-- <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 p-4 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] ">
             <div class="flex gap-3">   
                     <a href="{{ route('scan.barcode') }}" class="flex-[1.5] bg-teal-500 text-white text-center font-bold py-3.5 rounded-xl shadow-lg shadow-teal-500/30 active:scale-95 transition-transform">
                         Scan Sekarang
                     </a>
             </div>
-        </div>
+        </div> -->
 
         {{-- Footer --}}
-        <footer class="bg-hg-dark text-white py-12 md:py-20 mb-20 md:mb-0">
+        <footer class="mt-auto bg-hg-dark text-white py-12 md:py-20">
             <div class="container mx-auto px-6 text-center">
                 <span class="text-2xl font-bold tracking-tight">HealthGrade</span>
                 <p class="text-white/60 text-sm mt-2">© {{ date('Y') }} HealthGrade Inc. Malang, Indonesia.</p>

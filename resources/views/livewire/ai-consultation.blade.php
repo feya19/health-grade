@@ -1,4 +1,4 @@
-<div class="fixed inset-0 bg-gray-50 flex flex-col h-full" x-data="chatStream()">
+<div class="fixed inset-0 bg-white flex flex-col h-full" x-data="chatStream()">
 
     {{-- 1. TOP HEADER --}}
     <div class="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0 z-30">
