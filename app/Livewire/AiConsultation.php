@@ -3,81 +3,204 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
+use Livewire\WithFileUploads;
 use App\Models\AiAssistant;
 use Illuminate\Support\Facades\Auth;
 
 #[Title('HealthGrade Assistant')]
 class AiConsultation extends Component
 {
-    public $prompt = '';
-    public $chatHistory = [];
+    use WithFileUploads;
+
+    public array $messages = [];
+    public string $prompt = '';
+    public bool $isStreaming = false;
+    public $image;
+    public ?string $imagePreview = null;
 
     public function mount()
     {
+        // Load history dari database dan convert ke format messages
         $this->loadHistory();
     }
 
     public function loadHistory()
     {
-        // Ambil 50 chat terakhir, urutkan dari terlama ke terbaru
-        $this->chatHistory = AiAssistant::where('user_id', Auth::id())
-            ->whereNull('food_id') // Filter chat general (bukan spesifik produk)
+        $history = AiAssistant::where('user_id', Auth::id())
+            ->whereNull('food_id')
             ->latest()
             ->take(50)
             ->get()
             ->sortBy('id');
+
+        // Convert database history ke format messages
+        foreach ($history as $chat) {
+            $this->messages[] = [
+                'role' => 'user',
+                'content' => $chat->user_prompt
+            ];
+            $this->messages[] = [
+                'role' => 'assistant',
+                'content' => $chat->ai_response
+            ];
+        }
     }
 
-    public function sendMessage()
+    public function sendMessage(?string $messageContent = null)
+    {
+        $content = $messageContent ?? $this->prompt;
+        $content = trim($content);
+        
+        if (empty($content) && !$this->image) {
+            return;
+        }
+
+        $messageData = [
+            'role' => 'user',
+            'content' => []
+        ];
+
+        // Add text
+        $messageData['content'][] = [
+            'type' => 'text',
+            'text' => $content ?: 'Jelaskan gambar ini'
+        ];
+
+        // Handle image if uploaded
+        if ($this->image) {
+            try {
+                $imagePath = $this->image->store('chat-images', 'public');
+                $imageFullPath = storage_path('app/public/' . $imagePath);
+
+                $imageBase64 = base64_encode(file_get_contents($imageFullPath));
+                $mimeType = mime_content_type($imageFullPath);
+
+                $messageData['content'][] = [
+                    'type' => 'image_url',
+                    'image_url' => [
+                        'url' => "data:$mimeType;base64,$imageBase64"
+                    ]
+                ];
+            } catch (\Exception $e) {
+                $this->addError('image', 'Gagal upload gambar: ' . $e->getMessage());
+                return;
+            }
+        }
+
+        $this->messages[] = $messageData;
+
+        // Clear form inputs
+        $this->prompt = '';
+        $this->image = null;
+        $this->imagePreview = null;
+        $this->isStreaming = true;
+
+        $this->dispatch('start-streaming', 
+            messages: $this->prepareMessagesForAPI()
+        );
+    }
+
+    public function updatedImage()
     {
         $this->validate([
-            'prompt' => 'required|string|min:2|max:500'
+            'image' => 'image|max:10240',
         ]);
 
-        // 1. Simpan Prompt User
-        // Kita butuh response dulu sebelum save ke DB agar satu row (sesuai struktur tabel Anda)
-        // Atau: Create row baru.
+        if ($this->image) {
+            $this->imagePreview = $this->image->temporaryUrl();
+        }
+    }
+
+    public function removeImage()
+    {
+        $this->image = null;
+        $this->imagePreview = null;
+    }
+
+    protected function prepareMessagesForAPI(): array
+    {
+        $systemPrompt = config('app.llm_model.global_system_prompt') ?: 'Kamu adalah asisten nutrisi HealthGrade. Jawab dengan ramah dan informatif dalam Bahasa Indonesia.';
         
-        $userQuestion = $this->prompt;
-        $this->prompt = ''; // Reset input segera agar UI responsif
+        $apiMessages = [
+            ['role' => 'system', 'content' => $systemPrompt]
+        ];
 
-        // 2. Simulasi "Thinking" AI (Logic Mockup)
-        // Nanti ganti bagian ini dengan API Call (OpenAI / Gemini)
-        $aiAnswer = $this->generateMockResponse($userQuestion);
+        foreach ($this->messages as $msg) {
+            if (is_array($msg['content'])) {
+                $hasImage = collect($msg['content'])->contains('type', 'image_url');
+                
+                if ($hasImage) {
+                    $apiMessages[] = $msg;
+                } else {
+                    $textContent = collect($msg['content'])
+                        ->where('type', 'text')
+                        ->pluck('text')
+                        ->implode(' ');
+                    
+                    $apiMessages[] = [
+                        'role' => $msg['role'],
+                        'content' => $textContent
+                    ];
+                }
+            } else {
+                $apiMessages[] = $msg;
+            }
+        }
 
-        // 3. Simpan ke Database
+        return $apiMessages;
+    }
+
+    #[On('streaming-complete')]
+    public function onStreamingComplete(string $content)
+    {
+        // Get last user message text
+        $lastUserMessage = collect($this->messages)
+            ->where('role', 'user')
+            ->last();
+        
+        $userPrompt = is_array($lastUserMessage['content'] ?? null) 
+            ? collect($lastUserMessage['content'])->where('type', 'text')->pluck('text')->first()
+            : ($lastUserMessage['content'] ?? '');
+
+        // Save to database
         AiAssistant::create([
             'user_id' => Auth::id(),
-            'food_id' => null, // Null karena ini konsultasi umum
-            'user_prompt' => $userQuestion,
-            'ai_response' => $aiAnswer,
+            'food_id' => null,
+            'user_prompt' => $userPrompt,
+            'ai_response' => $content,
             'context_data' => null 
         ]);
 
-        // 4. Refresh Chat
-        $this->loadHistory();
+        $this->messages[] = [
+            'role' => 'assistant',
+            'content' => $content,
+        ];
+        $this->isStreaming = false;
     }
 
-    // --- LOGIC PURA-PURA AI (Hapus function ini jika sudah connect API Asli) ---
-    private function generateMockResponse($question)
+    #[On('streaming-error')]
+    public function onStreamingError(string $error)
     {
-        $q = strtolower($question);
-        
-        if (str_contains($q, 'diet')) {
-            return "Untuk diet sehat, pastikan defisit kalori sekitar 300-500 kkal dari TDEE harianmu. Perbanyak protein dan serat, serta kurangi gula tambahan.";
-        }
-        if (str_contains($q, 'air') || str_contains($q, 'minum')) {
-            return "Kebutuhan cairan rata-rata adalah 30-35ml per kg berat badan. Jangan lupa minum lebih banyak jika berolahraga!";
-        }
-        if (str_contains($q, 'gula')) {
-            return "Batas konsumsi gula harian yang disarankan Kemenkes adalah 50 gram (setara 4 sendok makan). Cek label makananmu dengan fitur Scan kami!";
-        }
-        if (str_contains($q, 'halo') || str_contains($q, 'hi')) {
-            return "Halo! Saya asisten kesehatan HealthGrade. Ada yang bisa saya bantu mengenai nutrisi hari ini?";
-        }
+        $this->messages[] = [
+            'role' => 'assistant',
+            'content' => 'Error: ' . $error,
+        ];
+        $this->isStreaming = false;
+    }
 
-        return "Pertanyaan yang bagus! Secara umum, menjaga pola makan seimbang (Gizi Seimbang) adalah kunci kesehatan jangka panjang. Ada lagi yang ingin ditanyakan?";
+    public function clearChat()
+    {
+        // Delete from database
+        AiAssistant::where('user_id', Auth::id())
+            ->whereNull('food_id')
+            ->delete();
+
+        $this->messages = [];
+        $this->isStreaming = false;
+        $this->image = null;
+        $this->imagePreview = null;
     }
 
     public function render()

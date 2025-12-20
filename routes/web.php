@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/history', History::class)->name('history');
     Route::get('/scan/{id}', ScanDetail::class)->name('scan.detail');
     Route::get('/assistant', AiConsultation::class)->name('assistant');
+    Route::post('/assistant/stream', [App\Http\Controllers\ChatStreamController::class, 'stream'])->name('assistant.stream');
 });
 
 Route::view('profile', 'profile')
