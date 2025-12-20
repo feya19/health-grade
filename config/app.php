@@ -123,4 +123,18 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'health_grades' => [
+        'sugar' => [
+            'A' => [0, 1],
+            'B' => [1, 5],
+            'C' => [5, 10],
+            'D' => [10, null],
+        ],
+        'saturated_fat' => [
+            'A' => [0, 0.7],
+            'B' => [0.7, 1.2],
+            'C' => [1.2, 2.8],
+            'D' => [2.8, null],
+        ],
+    ],
 ];
