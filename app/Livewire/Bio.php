@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Livewire;
+
+use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
+
+class Bio extends Component
+{
+    public $gender;
+    public $weight;
+    public $height;
+
+    public function mount()
+    {
+        $this->gender = Auth::user()->gender;
+        $this->weight = Auth::user()->berat_badan;
+        $this->height = Auth::user()->tinggi_badan;
+    }
+
+    public function save()
+    {
+        $this->validate([
+            'gender' => 'required|in:male,female',
+            'weight' => 'required|numeric|min:20|max:300',
+            'height' => 'required|numeric|min:50|max:250',
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->update([
+            'gender' => $this->gender,
+            'berat_badan' => $this->weight,
+            'tinggi_badan' => $this->height,
+        ]);
+
+        session()->flash('status', 'Data berhasil disimpan!');
+
+        $this->redirectRoute('dashboard', navigate: true);
+    }
+
+    public function render()
+    {
+        return view('livewire.bio');
+    }
+}

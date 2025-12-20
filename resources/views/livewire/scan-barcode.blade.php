@@ -446,26 +446,26 @@
                     // Coba berbagai orientasi: normal, 90°, 180°, 270°, flip horizontal, flip vertical
                     const orientations = [{
                             angle: 0,
-                            flipH: false,
-                            flipV: false,
+                            flipH: true,
+                            flipV: true,
                             label: 'normal'
                         },
                         {
                             angle: 90,
-                            flipH: false,
-                            flipV: false,
+                            flipH: true,
+                            flipV: true,
                             label: '90°'
                         },
                         {
                             angle: 180,
-                            flipH: false,
-                            flipV: false,
+                            flipH: true,
+                            flipV: true,
                             label: '180°'
                         },
                         {
                             angle: 270,
-                            flipH: false,
-                            flipV: false,
+                            flipH: true,
+                            flipV: true,
                             label: '270°'
                         },
                         {
