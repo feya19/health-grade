@@ -99,7 +99,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </a>
         </div>
 
-        <div>
+        <div class="mt-4">
             @if (Route::has('password.request'))
                 <a class="underline text-sm text-[#005461] hover:text-[#00B7B5] rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00B7B5]"
                     href="{{ route('password.request') }}" wire:navigate>
