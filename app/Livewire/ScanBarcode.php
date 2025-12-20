@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class ScanBarcode extends Component
 {
     public $error = null;
+    public $productData = null;
 
     public function handleScan($decodedText)
     {
