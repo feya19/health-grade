@@ -6,55 +6,74 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
-use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var list<string>
      */
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'google_id',
+        'gender',
+        'berat_badan', // Sesuai migrasi Anda
+        'tinggi_badan', // Sesuai migrasi Anda
+        'date_of_birth',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
      */
     protected $hidden = [
         'password',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
         'remember_token',
     ];
 
     /**
      * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
+            'berat_badan' => 'float',
+            'tinggi_badan' => 'float',
         ];
     }
 
-    /**
-     * Get the user's initials
-     */
-    public function initials(): string
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function scanHistories(): HasMany
     {
-        return Str::of($this->name)
-            ->explode(' ')
-            ->take(2)
-            ->map(fn($word) => Str::substr($word, 0, 1))
-            ->implode('');
+        return $this->hasMany(ScanHistory::class);
+    }
+
+    public function aiAssistants(): HasMany
+    {
+        return $this->hasMany(AiAssistant::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors & Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    // Helper untuk hitung umur: $user->age
+    public function getAgeAttribute()
+    {
+        return $this->date_of_birth ? Carbon::parse($this->date_of_birth)->age : null;
     }
 }
