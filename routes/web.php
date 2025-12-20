@@ -7,9 +7,9 @@ use App\Livewire\ScanDetail;
 
 Route::view('/', 'welcome');
 
-Route::get('/dashboard', Dashboard::class)
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// Route::get('/dashboard', Dashboard::class)
+//     ->middleware(['auth', 'verified'])
+//     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');

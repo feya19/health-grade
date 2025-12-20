@@ -163,4 +163,27 @@
             </table>
         </div>
     </div>
+
+    <div class="fixed bottom-8 right-8 z-50">
+        <button 
+            {{-- wire:click="openAiChat" --}}  {{-- Uncomment jika nanti sudah ada fungsi Livewire-nya --}}
+            class="group flex items-center gap-3 bg-hg-dark text-white pl-5 pr-6 py-4 rounded-full shadow-2xl shadow-hg-dark/30 hover:shadow-hg-primary/50 hover:bg-hg-primary hover:-translate-y-1 transition-all duration-300 ease-out border border-white/10"
+        >
+            <div class="relative flex items-center justify-center">
+                {{-- <svg class="w-6 h-6 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                </svg> --}}
+                
+                <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-hg-primary opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-hg-primary"></span>
+                </span>
+            </div>
+
+            <div class="text-left">
+                <span class="block text-xs text-white/70 font-medium leading-none mb-0.5">Asisten</span>
+                <span class="block font-bold text-sm tracking-wide leading-none">HealthGrade AI</span>
+            </div>
+        </button>
+    </div>
 </div>
