@@ -87,23 +87,21 @@
                         </svg>
                     </div>
                     <div class="space-y-1 max-w-[90%]">
-                        <div class="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-hg-dark text-sm leading-relaxed whitespace-pre-wrap">
-                            {{ $message['content'] }}
-                        </div>
+                        <div class="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-hg-dark text-sm leading-relaxed whitespace-pre-wrap">{{ trim($message['content']) }}</div>
                     </div>
                 </div>
             @endif
         @endforeach
 
         {{-- Streaming Message --}}
-        <div x-show="streamingMessage" class="flex gap-3 max-w-3xl mx-auto" style="display: none;">
+        <div x-show="streamingMessage && streamingMessage.trim()" class="flex gap-3 max-w-3xl mx-auto" style="display: none;">
             <div class="w-8 h-8 rounded-full bg-hg-primary/10 flex items-center justify-center text-hg-primary shrink-0 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
                     <path fill-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813a3.75 3.75 0 002.576-2.576l.813-2.846A.75.75 0 019 4.5z" clip-rule="evenodd" />
                 </svg>
             </div>
             <div class="space-y-1 max-w-[90%]">
-                <div class="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-hg-dark text-sm leading-relaxed whitespace-pre-wrap" x-text="streamingMessage"></div>
+                <div class="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-hg-dark text-sm leading-relaxed whitespace-pre-wrap" x-text="streamingMessage.trim()"></div>
             </div>
         </div>
 
@@ -210,6 +208,14 @@
                     this.startStreaming(event.messages);
                 });
                 
+                // Listen for messages update - clear streaming AFTER Livewire adds the message
+                this.$watch('$wire.isStreaming', (isStreaming) => {
+                    if (!isStreaming && this.streamingMessage) {
+                        this.streamingMessage = '';
+                        this.scrollToBottom();
+                    }
+                });
+                
                 this.$nextTick(() => {
                     this.scrollToBottom();
                 });
@@ -265,10 +271,11 @@
                                 const data = trimmedLine.slice(6).trim();
                                 
                                 if (data === '[DONE]') {
+                                    // Dispatch to Livewire - streamingMessage will be cleared
+                                    // after Livewire updates isStreaming to false
                                     this.$wire.dispatch('streaming-complete', { 
-                                        content: this.streamingMessage 
+                                        content: this.streamingMessage.trim()
                                     });
-                                    this.streamingMessage = '';
                                     return;
                                 }
                                 
@@ -306,17 +313,21 @@
                         }
                     }
                     
-                    this.$wire.dispatch('streaming-complete', { 
-                        content: this.streamingMessage 
-                    });
-                    this.streamingMessage = '';
+                    // Only dispatch if we have content and haven't already dispatched
+                    if (this.streamingMessage.trim()) {
+                        this.$wire.dispatch('streaming-complete', { 
+                            content: this.streamingMessage.trim()
+                        });
+                    }
                     
                 } catch (error) {
                     console.error('Streaming error:', error);
                     this.$wire.dispatch('streaming-error', { 
                         error: error.message 
                     });
+                    // Error case - clear immediately
                     this.streamingMessage = '';
+                    this.$wire.isStreaming = false;
                 }
             },
             

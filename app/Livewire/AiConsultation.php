@@ -39,11 +39,11 @@ class AiConsultation extends Component
         foreach ($history as $chat) {
             $this->messages[] = [
                 'role' => 'user',
-                'content' => $chat->user_prompt
+                'content' => trim($chat->user_prompt)
             ];
             $this->messages[] = [
                 'role' => 'assistant',
-                'content' => $chat->ai_response
+                'content' => trim($chat->ai_response)
             ];
         }
     }
@@ -155,6 +155,9 @@ class AiConsultation extends Component
     #[On('streaming-complete')]
     public function onStreamingComplete(string $content)
     {
+        // Clean up whitespace from streamed content
+        $content = trim($content);
+        
         // Get last user message text
         $lastUserMessage = collect($this->messages)
             ->where('role', 'user')
