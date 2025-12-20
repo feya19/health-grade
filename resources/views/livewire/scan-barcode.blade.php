@@ -160,6 +160,90 @@
 
             @this.handleScan(decodedText);
         }
+
+        // Handle upload gambar barcode
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Stop video scanner saat upload
+            stopScanner();
+
+            const msgEl = document.getElementById('scan-message');
+            if (msgEl) {
+                msgEl.innerText = "⏳ Membaca barcode dari gambar...";
+                msgEl.classList.remove('text-green-600', 'text-red-500', 'text-gray-500');
+                msgEl.classList.add('text-blue-600', 'font-bold');
+            }
+
+            try {
+                const reader = new FileReader();
+
+                const imageData = await new Promise((resolve, reject) => {
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error('Failed to read file'));
+                    reader.readAsDataURL(file);
+                });
+
+                const img = await new Promise((resolve, reject) => {
+                    const image = new Image();
+                    image.onload = () => resolve(image);
+                    image.onerror = () => reject(new Error('Failed to load image'));
+                    image.src = imageData;
+                });
+
+                // Buat canvas untuk decode
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Resize jika terlalu besar (max 1920px)
+                let width = img.width;
+                let height = img.height;
+                const maxSize = 1920;
+
+                if (width > maxSize || height > maxSize) {
+                    if (width > height) {
+                        height = (height / width) * maxSize;
+                        width = maxSize;
+                    } else {
+                        width = (width / height) * maxSize;
+                        height = maxSize;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Decode dari canvas
+                const {
+                    BrowserMultiFormatReader
+                } = window.ZXing || ZXing;
+                const barcodeReader = new BrowserMultiFormatReader();
+
+                try {
+                    const result = await barcodeReader.decodeFromCanvas(canvas);
+                    console.log('✓ Barcode from image:', result.getText());
+                    onScanSuccess(result.getText());
+                } catch (decodeError) {
+                    console.log('Decode failed:', decodeError.name || 'Unknown');
+                    if (msgEl) {
+                        msgEl.innerText = "❌ Barcode tidak terdeteksi. Pastikan foto fokus dan jelas.";
+                        msgEl.classList.remove('text-blue-600', 'font-bold');
+                        msgEl.classList.add('text-red-500');
+                    }
+                    event.target.value = '';
+                }
+            } catch (error) {
+                console.log('Image processing failed:', error.message);
+                if (msgEl) {
+                    msgEl.innerText = "❌ Gagal memproses gambar";
+                    msgEl.classList.remove('text-blue-600', 'font-bold');
+                    msgEl.classList.add('text-red-500');
+                }
+                event.target.value = '';
+            }
+        }
     </script>
 
 
