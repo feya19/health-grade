@@ -6,8 +6,11 @@ use App\Livewire\History;
 use App\Livewire\ScanDetail;
 use App\Livewire\ScanBarcode;
 use App\Livewire\AiConsultation;
+use App\Http\Controllers\Api\ProductController;
 
 Route::view('/', 'welcome');
+
+Route::get('/products/{barcode}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/scan', ScanBarcode::class)->name('scan.barcode');
 
