@@ -67,7 +67,7 @@
             <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-hg-dark mb-8 leading-tight max-w-5xl mx-auto">
                 Jangan Asal Makan, <br class="hidden md:block" />
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-hg-primary to-hg-secondary">
-                    Pindai Barcode, Pahami Nutrisi.
+                    Pahami Nutrisi.
                 </span>
             </h1>
 

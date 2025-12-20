@@ -111,7 +111,7 @@
     <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h3 class="font-bold text-hg-dark text-lg">Riwayat Scan Terakhir</h3>
-            <a href="/riwayat-nutrisi" class="text-sm text-hg-primary font-medium hover:underline">Lihat Semua</a>
+            <a href="/history" class="text-sm text-hg-primary font-medium hover:underline">Lihat Semua</a>
         </div>
         
         <div class="overflow-x-auto">

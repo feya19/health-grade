@@ -2,12 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Dashboard;
+use App\Livewire\History;
+use App\Livewire\ScanDetail;
 
 Route::view('/', 'welcome');
 
 Route::get('/dashboard', Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/history', History::class)->name('history');
+    Route::get('/scan/{id}', ScanDetail::class)->name('scan.detail');
+});
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])
