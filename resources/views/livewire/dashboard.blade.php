@@ -1,213 +1,173 @@
-<div class="max-w-6xl mx-auto space-y-8 py-8 px-4 sm:px-6">
+{{-- PERBAIKAN: Gunakan fixed inset-0 agar menutupi Sidebar layout utama --}}
+<div class="fixed inset-0 bg-hg-light overflow-y-auto pb-28">
     
-    {{-- 1. HEADER --}}
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-hg-dark">Selamat Datang, {{ auth()->user()->name ?? 'User' }}! 👋</h1>
-            <p class="text-gray-500">Berikut adalah ringkasan nutrisi harian Anda.</p>
+    {{-- 1. TOP BAR (Mobile Header) --}}
+    {{-- Menggunakan sticky top-0 agar tetap terlihat saat scroll --}}
+    <div class="bg-white px-6 pt-8 pb-6 rounded-b-[2rem] shadow-sm sticky top-0 z-30">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-sm text-gray-400 font-medium">Selamat Datang,</p>
+                <h1 class="text-2xl font-bold text-hg-dark truncate max-w-[200px]">{{ auth()->user()->name ?? 'User' }}! 👋</h1>
+            </div>
+            {{-- <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden">
+                {{-- Placeholder Avatar --}}
+                {{-- <svg class="w-full h-full text-gray-400 p-1" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg> --}}
+            {{-- </div> --}}
         </div>
-        {{-- Pastikan route 'scan' atau 'scan.barcode' sesuai dengan routes.php Anda --}}
-        <a href="{{ route('scan.barcode') }}" wire:navigate class="flex items-center gap-2 bg-hg-primary hover:bg-hg-secondary text-white px-5 py-2.5 rounded-xl font-medium transition shadow-lg shadow-hg-primary/20">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-            Scan Produk Baru
-        </a>
     </div>
 
-    {{-- 2. STATS GRID (GULA & LEMAK) --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="px-4 mt-6 space-y-6 max-w-lg mx-auto">
         
-        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:border-hg-primary/30 transition-all">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                <svg class="w-20 h-20 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-            </div>
-            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Konsumsi Gula</p>
-            <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-3xl font-bold text-hg-dark">{{ number_format($stats['gula_consumed']) }}g</span>
-                <span class="text-sm text-gray-400">/ {{ $stats['gula_limit'] }}g</span>
-            </div>
-            
-            @php $gulaPercent = ($stats['gula_consumed'] / $stats['gula_limit']) * 100; @endphp
-            <div class="w-full bg-gray-100 rounded-full h-2 mt-4">
-                <div class="{{ $gulaPercent > 100 ? 'bg-red-500' : 'bg-orange-400' }} h-2 rounded-full transition-all duration-1000" style="width: {{ min(100, $gulaPercent) }}%"></div>
-            </div>
-            
-            @if($gulaPercent > 100)
-                <p class="text-xs text-red-500 mt-2 font-medium">Melebihi batas ({{ round($gulaPercent) }}%)</p>
-            @else
-                <p class="text-xs text-orange-600 mt-2 font-medium">Terisi {{ round($gulaPercent) }}% batas harian</p>
-            @endif
-        </div>
+        {{-- 2. CALORIE CARD (Main Focus) --}}
+        <div class="bg-hg-dark rounded-3xl p-6 text-white shadow-xl shadow-hg-dark/20 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-hg-primary/20 rounded-full blur-xl"></div>
 
-        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:border-hg-primary/30 transition-all">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                <svg class="w-20 h-20 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            </div>
-            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Konsumsi Lemak</p>
-            <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-3xl font-bold text-hg-dark">{{ number_format($stats['lemak_consumed']) }}g</span>
-                <span class="text-sm text-gray-400">/ {{ $stats['lemak_limit'] }}g</span>
-            </div>
-            
-            @php $lemakPercent = ($stats['lemak_consumed'] / $stats['lemak_limit']) * 100; @endphp
-            <div class="w-full bg-gray-100 rounded-full h-2 mt-4">
-                <div class="{{ $lemakPercent > 100 ? 'bg-red-500' : 'bg-yellow-400' }} h-2 rounded-full transition-all duration-1000" style="width: {{ min(100, $lemakPercent) }}%"></div>
-            </div>
-             
-            @if($lemakPercent > 100)
-                <p class="text-xs text-red-500 mt-2 font-medium">Melebihi batas ({{ round($lemakPercent) }}%)</p>
-            @else
-                <p class="text-xs text-green-600 mt-2 font-medium">Terisi {{ round($lemakPercent) }}% batas harian</p>
-            @endif
-        </div>
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-hg-primary font-bold text-sm uppercase tracking-wider">Kalori Harian</p>
+                        <p class="text-xs text-gray-300 mt-1">Target: {{ number_format($stats['calories_target']) }} kkal</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium">
+                        {{ $stats['calories_target'] > 0 ? round(($stats['calories_current'] / $stats['calories_target']) * 100) : 0 }}% Terisi
+                    </div>
+                </div>
 
-        <div class="bg-gradient-to-br from-hg-primary to-hg-secondary p-6 rounded-2xl shadow-lg text-white relative overflow-hidden">
-            <div class="absolute bottom-0 right-0 -mb-4 -mr-4 opacity-20">
-                <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-7.75 14.65L2 22l5.35-2.25A10 10 0 1 0 12 2z"/></svg>
-            </div>
-            <p class="text-sm font-medium text-white/80 uppercase tracking-wide">Total Produk Discan</p>
-            <h3 class="text-4xl font-bold mt-1">{{ $stats['total_scan'] }}</h3>
-            <div class="mt-4 flex items-center gap-2 bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-sm text-xs font-medium">
-                <span>Total Riwayat</span>
-            </div>
-        </div>
-    </div>
+                <div class="flex items-end gap-2 mb-4">
+                    <span class="text-5xl font-black tracking-tight">{{ number_format($stats['calories_current']) }}</span>
+                    <span class="text-lg text-gray-400 mb-2 font-medium">kkal</span>
+                </div>
 
-    {{-- 3. KALORI SECTION --}}
-     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8 relative overflow-hidden group">
-         <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-red-500/5 rounded-full blur-3xl group-hover:bg-red-500/10 transition-colors"></div>
-         
-         <div class="relative z-10 flex flex-col md:flex-row gap-8 items-center">
-             
-             <div class="flex-1 w-full">
-                 <div class="flex items-center gap-3 mb-2">
-                     <div class="p-2 bg-red-50 rounded-lg text-red-500">
-                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
-                     </div>
-                     <h3 class="font-bold text-lg text-hg-dark">Target Kalori Harian</h3>
-                 </div>
-                 <p class="text-gray-500 text-sm mb-6">
-                     Dihitung berdasarkan profil tubuh Anda ({{ $stats['user_weight'] }}kg / {{ $stats['user_height'] }}cm). <br>
-                     Jagalah asupan kalori agar tetap bertenaga namun ideal.
-                 </p>
- 
-                 <div class="flex items-end gap-1">
-                     <span class="text-4xl font-extrabold text-hg-dark">{{ number_format($stats['calories_current']) }}</span>
-                     <span class="text-lg text-gray-400 font-medium mb-1">/ {{ number_format($stats['calories_target']) }} kkal</span>
-                 </div>
-             </div>
- 
-             <div class="w-full md:w-1/2">
-                 <div class="flex justify-between text-sm font-medium mb-2">
-                     <span class="{{ $stats['calories_current'] > $stats['calories_target'] ? 'text-red-500' : 'text-hg-primary' }}">
-                         {{ round(($stats['calories_current'] / $stats['calories_target']) * 100) }}% Terpenuhi
-                     </span>
-                     <span class="text-gray-400">Sisa: {{ max(0, $stats['calories_target'] - $stats['calories_current']) }} kkal</span>
-                 </div>
-                 
-                 <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
-                     <div class="h-full rounded-full transition-all duration-1000 ease-out relative 
-                         {{ $stats['calories_current'] > $stats['calories_target'] ? 'bg-red-500' : 'bg-gradient-to-r from-orange-400 to-red-500' }}" 
-                         style="width: {{ min(100, ($stats['calories_current'] / $stats['calories_target']) * 100) }}%">
-                         
-                         <div class="absolute inset-0 bg-white/30 w-full animate-[shimmer_2s_infinite] skew-x-12 -translate-x-full"></div>
-                     </div>
-                 </div>
-                 
-                 @if($stats['calories_current'] > $stats['calories_target'])
-                     <p class="text-xs text-red-500 mt-2 font-medium flex items-center gap-1">
-                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                         Anda telah melebihi batas kalori harian.
-                     </p>
-                 @else
-                     <p class="text-xs text-gray-400 mt-2">Tetap pantau asupan Gula & Lemak meski kalori masih aman.</p>
-                 @endif
-             </div>
-         </div>
-     </div>
-
-    {{-- 4. RECENT SCANS TABLE --}}
-    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
-            <h3 class="font-bold text-hg-dark text-lg">Riwayat Scan Terakhir</h3>
-            <a href="{{ route('history') }}" wire:navigate class="text-sm text-hg-primary font-medium hover:underline">Lihat Semua</a>
-        </div>
-        
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead class="bg-gray-50/50 text-gray-500 text-xs uppercase font-semibold">
-                    <tr>
-                        <th class="px-6 py-4 text-center">Grade</th>
-                        <th class="px-6 py-4">Produk</th>
-                        <th class="px-6 py-4">Waktu</th>
-                        <th class="px-6 py-4">Kalori</th>
-                        {{-- <th class="px-6 py-4 text-right">Aksi</th>  <-- DIHAPUS --}}
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-sm">
-                    @forelse($recentScans as $scan)
-                    <tr class="hover:bg-gray-50/50 transition cursor-pointer group" 
-                        @click="Livewire.navigate('{{ route('scan.detail', ['id' => $scan->food->id]) }}')"
-                    >
-                    <td class="px-6 py-4 text-center">
-                        @php
-                            $grade = $scan->food->grade ?? '-';
-                            $badgeColor = match($grade) {
-                                'A' => 'bg-green-100 text-green-700 border-green-200',
-                                'B' => 'bg-lime-100 text-lime-700 border-lime-200',
-                                'C' => 'bg-orange-100 text-orange-700 border-orange-200',
-                                'D' => 'bg-red-100 text-red-700 border-red-200',
-                                default => 'bg-gray-100 text-gray-700'
-                            };
-                        @endphp
-                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full border {{ $badgeColor }} font-bold text-sm">
-                            {{ $grade }}
-                        </span>
-                    </td>
-                        <td class="px-6 py-4">
-                                <span class="font-semibold text-gray-700 group-hover:text-hg-primary transition">{{ $scan->food->name ?? 'Produk Dihapus' }}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-gray-500">
-                            {{ $scan->created_at->diffForHumans() }}
-                        </td>
-                        <td class="px-6 py-4 text-gray-500">
-                            {{ floatval($scan->total_calories_intaken) }} kkal
-                        </td>
-                        {{-- Kolom Aksi dihapus --}}
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                            Belum ada riwayat scan. Mulai hidup sehat dengan <a href="{{ route('scan.barcode') }}" class="text-hg-primary font-bold hover:underline">scan produk pertamamu!</a>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    {{-- 5. FLOATING AI BUTTON --}}
-    <div class="fixed bottom-8 right-8 z-50">
-        <a href="{{ route('assistant') }}" wire:navigate 
-           class="group flex items-center gap-3 bg-hg-dark text-white pl-5 pr-6 py-4 rounded-full shadow-2xl shadow-hg-dark/30 hover:shadow-hg-primary/50 hover:bg-hg-primary hover:-translate-y-1 transition-all duration-300 ease-out border border-white/10"
-        >
-            <div class="relative flex items-center justify-center">
-                <svg class="w-6 h-6 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                </svg>
+                <div class="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+                    <div class="h-full rounded-full bg-gradient-to-r from-hg-primary to-green-400 transition-all duration-1000" 
+                         style="width: {{ $stats['calories_target'] > 0 ? min(100, ($stats['calories_current'] / $stats['calories_target']) * 100) : 0 }}%">
+                    </div>
+                </div>
                 
-                <span class="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-hg-primary opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-hg-primary"></span>
-                </span>
+                <div class="mt-2 text-right">
+                    <span class="text-xs text-gray-400">Sisa: {{ max(0, $stats['calories_target'] - $stats['calories_current']) }} kkal</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- 3. NUTRIENT CARDS (Gula & Lemak) --}}
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                <p class="text-xs text-gray-400 font-bold uppercase">Gula</p>
+                <div class="mt-2 flex items-end justify-between">
+                    <span class="text-2xl font-bold text-hg-dark">{{ $stats['gula_consumed'] }}<span class="text-sm font-normal text-gray-400">g</span></span>
+                    
+                    @if(($stats['gula_consumed'] / $stats['gula_limit']) * 100 > 100)
+                        <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    @else
+                        <span class="text-xs font-bold text-orange-400">{{ round(($stats['gula_consumed'] / $stats['gula_limit']) * 100) }}%</span>
+                    @endif
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-3">
+                    <div class="bg-orange-400 h-1.5 rounded-full" style="width: {{ min(100, ($stats['gula_consumed'] / $stats['gula_limit']) * 100) }}%"></div>
+                </div>
             </div>
 
-            <div class="text-left">
-                <span class="block text-xs text-white/70 font-medium leading-none mb-0.5">Asisten</span>
-                <span class="block font-bold text-sm tracking-wide leading-none">HealthGrade AI</span>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                <p class="text-xs text-gray-400 font-bold uppercase">Lemak</p>
+                <div class="mt-2 flex items-end justify-between">
+                    <span class="text-2xl font-bold text-hg-dark">{{ $stats['lemak_consumed'] }}<span class="text-sm font-normal text-gray-400">g</span></span>
+                    <span class="text-xs font-bold text-yellow-400">{{ round(($stats['lemak_consumed'] / $stats['lemak_limit']) * 100) }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-3">
+                    <div class="bg-yellow-400 h-1.5 rounded-full" style="width: {{ min(100, ($stats['lemak_consumed'] / $stats['lemak_limit']) * 100) }}%"></div>
+                </div>
             </div>
-        </a>
+        </div>
+
+        {{-- 4. RECENT HISTORY --}}
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-hg-dark text-lg">Terakhir Discan</h3>
+                <a href="{{ route('history') }}" wire:navigate class="text-sm text-hg-primary font-medium">Lihat Semua</a>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="divide-y divide-gray-100">
+                    @forelse($recentScans as $scan)
+                        {{-- CLICKABLE ROW --}}
+                        <div 
+                            class="p-4 flex items-center gap-4 hover:bg-gray-50 transition cursor-pointer active:scale-[0.98] duration-150"
+                            @click="Livewire.navigate('{{ route('scan.detail', ['id' => $scan->food->id]) }}')"
+                        >
+                            {{-- Grade --}}
+                            @php
+                                $grade = $scan->food->grade ?? '-';
+                                $bgClass = match($grade) {
+                                    'A' => 'bg-green-100 text-green-700',
+                                    'B' => 'bg-lime-100 text-lime-700',
+                                    'C' => 'bg-orange-100 text-orange-700',
+                                    'D' => 'bg-red-100 text-red-700',
+                                    default => 'bg-gray-100 text-gray-500'
+                                };
+                            @endphp
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center {{ $bgClass }} font-bold text-lg shrink-0 shadow-sm">
+                                {{ $grade }}
+                            </div>
+
+                            {{-- Info --}}
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-hg-dark truncate">{{ $scan->food->name ?? 'Produk Dihapus' }}</h4>
+                                <p class="text-xs text-gray-400 truncate">{{ $scan->created_at->diffForHumans() }} • {{ floatval($scan->total_calories_intaken) }} kkal</p>
+                            </div>
+
+                            {{-- Icon Chevron --}}
+                            <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center text-gray-400 text-sm">
+                            Belum ada riwayat.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- 5. BOTTOM NAVIGATION BAR (PWA Style - Fixed) --}}
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] rounded-t-[2rem]">
+        <div class="flex justify-between items-center max-w-lg mx-auto relative">
+            
+            {{-- Home (Active) --}}
+            <a href="{{ route('dashboard') }}" wire:navigate class="flex flex-col items-center gap-1 text-hg-primary">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.1L1 12h3v9h7v-6h2v6h7v-9h3L12 2.1zm0 2.69l6 5.4V19h-3v-6H9v6H6v-8.81l6-5.4z"/></svg>
+                <span class="text-[10px] font-bold">Home</span>
+            </a>
+
+            {{-- History --}}
+            <a href="{{ route('history') }}" wire:navigate class="flex flex-col items-center gap-1 text-gray-400 hover:text-hg-dark transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[10px] font-medium">Riwayat</span>
+            </a>
+
+            {{-- SCAN BUTTON (Center Floating) --}}
+            <div class="relative -top-8">
+                <a href="{{ route('scan.barcode') }}" wire:navigate class="flex items-center justify-center w-16 h-16 bg-hg-dark rounded-full text-white shadow-xl shadow-hg-primary/40 border-4 border-hg-light hover:scale-105 transition transform active:scale-95">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                </a>
+            </div>
+
+            {{-- AI Assistant --}}
+            <a href="{{ route('assistant') }}" wire:navigate class="flex flex-col items-center gap-1 text-gray-400 hover:text-hg-dark transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                <span class="text-[10px] font-medium">Asisten</span>
+            </a>
+
+            {{-- Profile (Optional Link) --}}
+            <a href="{{ route('profile') }}" class="flex flex-col items-center gap-1 text-gray-400 hover:text-hg-dark transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span class="text-[10px] font-medium">Profil</span>
+            </a>
+
+        </div>
     </div>
 
 </div>
