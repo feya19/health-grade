@@ -180,11 +180,19 @@
                     const {
                         BrowserMultiFormatReader
                     } = ZXing;
+
                     codeReader = new BrowserMultiFormatReader();
 
+                    // Request video dengan resolusi optimal untuk kecepatan
                     videoStream = await navigator.mediaDevices.getUserMedia({
                         video: {
-                            facingMode: 'environment'
+                            facingMode: 'environment',
+                            width: {
+                                ideal: 1280
+                            },
+                            height: {
+                                ideal: 720
+                            }
                         }
                     });
 
@@ -198,6 +206,9 @@
                     if (msgEl) msgEl.innerText = '📷 Arahkan kamera ke barcode';
 
                     isScanning = true;
+
+                    // Decode dengan interval lebih cepat dan tryInverted untuk barcode terbalik
+                    codeReader.timeBetweenDecodingAttempts = 300; // 300ms lebih cepat
 
                     codeReader.decodeFromVideoElement(videoElement, (result, err) => {
                         if (!isScanning) return;
@@ -400,19 +411,96 @@
                     } = window.ZXing || ZXing;
                     const barcodeReader = new BrowserMultiFormatReader();
 
-                    try {
-                        const result = await barcodeReader.decodeFromCanvas(canvas);
-                        console.log('✓ Barcode from image:', result.getText());
-                        onScanSuccess(result.getText());
-                    } catch (decodeError) {
-                        console.log('Decode failed:', decodeError.name || 'Unknown');
-                        if (msgEl) {
-                            msgEl.innerText = "❌ Barcode tidak terdeteksi. Pastikan foto fokus dan jelas.";
-                            msgEl.classList.remove('text-blue-600', 'font-bold');
-                            msgEl.classList.add('text-red-500');
+                    // Fungsi helper untuk coba berbagai orientasi
+                    const tryDecode = async (sourceCanvas, angle = 0, flipH = false, flipV = false) => {
+                        const testCanvas = document.createElement('canvas');
+                        const testCtx = testCanvas.getContext('2d');
+
+                        if (angle === 90 || angle === 270) {
+                            testCanvas.width = height;
+                            testCanvas.height = width;
+                        } else {
+                            testCanvas.width = width;
+                            testCanvas.height = height;
                         }
-                        event.target.value = '';
+
+                        testCtx.save();
+
+                        // Translate ke center
+                        testCtx.translate(testCanvas.width / 2, testCanvas.height / 2);
+
+                        // Rotate
+                        if (angle) testCtx.rotate((angle * Math.PI) / 180);
+
+                        // Flip
+                        if (flipH) testCtx.scale(-1, 1);
+                        if (flipV) testCtx.scale(1, -1);
+
+                        // Draw dengan offset ke center
+                        testCtx.drawImage(sourceCanvas, -width / 2, -height / 2, width, height);
+                        testCtx.restore();
+
+                        return await barcodeReader.decodeFromCanvas(testCanvas);
+                    };
+
+                    // Coba berbagai orientasi: normal, 90°, 180°, 270°, flip horizontal, flip vertical
+                    const orientations = [{
+                            angle: 0,
+                            flipH: false,
+                            flipV: false,
+                            label: 'normal'
+                        },
+                        {
+                            angle: 90,
+                            flipH: false,
+                            flipV: false,
+                            label: '90°'
+                        },
+                        {
+                            angle: 180,
+                            flipH: false,
+                            flipV: false,
+                            label: '180°'
+                        },
+                        {
+                            angle: 270,
+                            flipH: false,
+                            flipV: false,
+                            label: '270°'
+                        },
+                        {
+                            angle: 0,
+                            flipH: true,
+                            flipV: false,
+                            label: 'flip horizontal'
+                        },
+                        {
+                            angle: 0,
+                            flipH: false,
+                            flipV: true,
+                            label: 'flip vertical'
+                        }
+                    ];
+
+                    for (const orientation of orientations) {
+                        try {
+                            const result = await tryDecode(canvas, orientation.angle, orientation.flipH, orientation.flipV);
+                            console.log(`✓ Barcode detected (${orientation.label}):`, result.getText());
+                            onScanSuccess(result.getText());
+                            return;
+                        } catch (err) {
+                            // Continue ke orientasi berikutnya
+                        }
                     }
+
+                    // Jika semua orientasi gagal
+                    console.log('Decode failed: No barcode found in any orientation');
+                    if (msgEl) {
+                        msgEl.innerText = "❌ Barcode tidak terdeteksi. Pastikan foto fokus dan jelas.";
+                        msgEl.classList.remove('text-blue-600', 'font-bold');
+                        msgEl.classList.add('text-red-500');
+                    }
+                    event.target.value = '';
                 } catch (error) {
                     console.log('Image processing failed:', error.message);
                     if (msgEl) {
