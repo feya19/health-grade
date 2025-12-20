@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-hg-light pb-28">
+<div class="min-h-screen bg-white pb-28">
     
     {{-- 1. TOP HEADER (Mobile Style) --}}
-    <div class="bg-white px-6 pt-8 pb-4 rounded-b-[2rem] shadow-sm sticky top-0 z-30 mb-6">
+    <div class="bg-white px-6 pt-8 pb-4  shadow-sm sticky top-0 z-30 mb-6">
         <div class="flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-hg-dark">Riwayat Scan</h1>
             <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden">
@@ -103,7 +103,7 @@
     </div>
 
     {{-- 3. BOTTOM NAVIGATION BAR (Fixed) --}}
-    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] rounded-t-[2rem]">
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] ">
         <div class="flex justify-between items-center max-w-lg mx-auto relative">
             
             {{-- Home --}}

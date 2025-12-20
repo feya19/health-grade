@@ -137,4 +137,11 @@ return [
             'D' => [2.8, null],
         ],
     ],
+
+    'llm_model' => [
+        'endpoint' => env('APP_LLM_ENDPOINT', ''),
+        'default' => env('APP_LLM_MODEL', ''),
+        'api_key' => env('APP_LLM_API_KEY', ''),
+        'global_system_prompt' => env('APP_LLM_GLOBAL_SYSTEM_PROMPT', ''),
+    ],
 ];

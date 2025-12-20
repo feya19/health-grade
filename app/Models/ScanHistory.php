@@ -24,7 +24,7 @@ class ScanHistory extends Model
     {
         return [
             'total_calories_intaken' => 'decimal:2',
-            'quantity' => 'integer',
+            'quantity' => 'decimal:2',
         ];
     }
 

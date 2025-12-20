@@ -17,6 +17,7 @@ class Food extends Model
         'name',
         'brand',
         'serving_size',
+        'serving_size_g',
         'calories',
         'sugar_g',
         'salt_mg',
@@ -34,6 +35,7 @@ class Food extends Model
     protected function casts(): array
     {
         return [
+            'serving_size_g' => 'decimal:2',
             'calories' => 'decimal:2',
             'sugar_g' => 'decimal:2',
             'salt_mg' => 'decimal:2',

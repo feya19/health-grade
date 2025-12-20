@@ -87,8 +87,8 @@ new class extends Component
         <div>
             <x-input-label for="email" :value="__('Email')" class="!text-gray-700" />
             
-            <x-text-input wire:model="email" id="email" name="email" type="email" 
-                class="mt-1 block w-full !bg-white !text-gray-900 !border-gray-300 focus:!border-hg-primary focus:!ring-hg-primary" 
+            <x-text-input disabled wire:model="email" id="email" name="email" type="email" 
+                class="mt-1 block w-full !bg-gray-100 !text-gray-900 !border-gray-300 focus:!border-hg-primary focus:!ring-hg-primary" 
                 required autocomplete="username" />
             
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
