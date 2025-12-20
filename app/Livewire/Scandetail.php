@@ -8,6 +8,8 @@ use App\Models\Food;
 use App\Models\ScanHistory;
 use App\Models\AiAssistant;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 #[Title('Detail Produk - HealthGrade')]
 class ScanDetail extends Component
@@ -22,8 +24,10 @@ class ScanDetail extends Component
 
     public function mount($id)
     {
-        // Ambil data makanan berdasarkan ID
-        $this->food = Food::findOrFail($id);
+        // Cache food by ID for 1 hour
+        $this->food = Cache::remember("food:id:{$id}", now()->addHour(), function () use ($id) {
+            return Food::findOrFail($id);
+        });
     }
 
     // Fitur: Catat Makan (Update history atau buat baru)
@@ -38,6 +42,14 @@ class ScanDetail extends Component
         ]);
 
         session()->flash('success', 'Berhasil dicatat ke asupan harian!');
+        
+        // Invalidate consumption context cache for this user
+        $userId = Auth::id();
+        $today = Carbon::today()->format('Y-m-d');
+        Cache::forget("consumption_context:{$userId}:{$today}");
+        Cache::forget("dashboard_stats:{$userId}:{$today}");
+        Cache::forget("recent_scans:{$userId}");
+        
         return $this->redirect(route('dashboard'), navigate: true);
     }
 

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Food;
 use App\Services\OpenFoodFactsService;
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 class ProductController extends Controller
 {
@@ -126,12 +128,25 @@ class ProductController extends Controller
     public function show(string $barcode)
     {
         // ========================================
-        // LAYER 1: Check Local Database (Fastest)
+        // LAYER 1: Check Cache First (Fastest)
+        // ========================================
+        $cacheKey = "food:barcode:{$barcode}";
+        
+        $cachedFood = Cache::get($cacheKey);
+        if ($cachedFood) {
+            return response()->json($cachedFood);
+        }
+
+        // ========================================
+        // LAYER 2: Check Local Database
         // ========================================
         $localFood = Food::where('barcode', $barcode)->first();
         
         if ($localFood && $localFood->sugar_g !== null) {
-            return response()->json($this->formatLocalProduct($localFood));
+            $response = $this->formatLocalProduct($localFood);
+            // Cache for 1 hour
+            Cache::put($cacheKey, $response, now()->addHour());
+            return response()->json($response);
         }
 
         // ========================================
@@ -275,6 +290,13 @@ class ProductController extends Controller
             'total_calories_intaken' => round($totalCalories, 2),
             'action_type' => 'consumed',
         ]);
+
+        // Invalidate consumption context cache for this user
+        $userId = auth()->id();
+        $today = Carbon::today()->format('Y-m-d');
+        Cache::forget("consumption_context:{$userId}:{$today}");
+        Cache::forget("dashboard_stats:{$userId}:{$today}");
+        Cache::forget("recent_scans:{$userId}");
 
         return response()->json([
             'success' => true,

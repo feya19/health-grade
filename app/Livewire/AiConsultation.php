@@ -7,7 +7,10 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\WithFileUploads;
 use App\Models\AiAssistant;
+use App\Models\ScanHistory;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 #[Title('HealthGrade Assistant')]
 class AiConsultation extends Component
@@ -128,7 +131,8 @@ class AiConsultation extends Component
         
         // Add user profile context if available
         $userContext = $this->buildUserContext($user);
-        $systemPrompt = $basePrompt . $userContext;
+        $consumptionContext = $this->buildConsumptionContext($user);
+        $systemPrompt = $basePrompt . $userContext . $consumptionContext;
         
         $apiMessages = [
             ['role' => 'system', 'content' => $systemPrompt]
@@ -202,6 +206,105 @@ class AiConsultation extends Component
         }
         
         return "\n\n[PROFIL PENGGUNA - Gunakan informasi ini untuk memberikan saran yang lebih personal]\n" . implode("\n", $context);
+    }
+
+    protected function buildConsumptionContext($user): string
+    {
+        // Cache consumption context for 5 minutes per user per day
+        $cacheKey = "consumption_context:{$user->id}:" . Carbon::today()->format('Y-m-d');
+        
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
+            return $this->buildConsumptionContextData($user);
+        });
+    }
+
+    protected function buildConsumptionContextData($user): string
+    {
+        // Get today's consumption data
+        $todayHistories = ScanHistory::with('food')
+            ->where('user_id', $user->id)
+            ->where('action_type', 'consumed')
+            ->whereDate('created_at', Carbon::today())
+            ->get();
+
+        if ($todayHistories->isEmpty()) {
+            return "\n\n[KONSUMSI HARI INI - " . Carbon::today()->format('d M Y') . "]\nBelum ada makanan yang dikonsumsi hari ini.";
+        }
+
+        // Calculate daily calorie target (same logic as Dashboard)
+        $weight = $user->berat_badan ?? 60;
+        $height = $user->tinggi_badan ?? 165;
+        $age = $user->age ?? 25;
+        $gender = $user->gender ?? 'male';
+
+        $baseBmr = (10 * $weight) + (6.25 * $height) - (5 * $age);
+        $bmr = ($gender === 'male') ? $baseBmr + 5 : $baseBmr - 161;
+        $dailyCalorieTarget = round($bmr * 1.2); // Sedentary activity level
+
+        // Calculate totals
+        $currentCalories = $todayHistories->sum('total_calories_intaken');
+        
+        $sugarConsumed = $todayHistories->sum(function($h) {
+            $servingG = $h->food->serving_size_g ?? 100;
+            return ($h->food->sugar_g / 100) * $servingG * $h->quantity;
+        });
+        
+        $fatConsumed = $todayHistories->sum(function($h) {
+            $servingG = $h->food->serving_size_g ?? 100;
+            return ($h->food->fat_total_g / 100) * $servingG * $h->quantity;
+        });
+        
+        $saltConsumed = $todayHistories->sum(function($h) {
+            $servingG = $h->food->serving_size_g ?? 100;
+            return ($h->food->salt_mg / 100) * $servingG * $h->quantity;
+        });
+
+        // Build food list
+        $foodList = [];
+        foreach ($todayHistories as $index => $history) {
+            $food = $history->food;
+            $foodList[] = ($index + 1) . ". {$food->name}" . 
+                ($food->brand ? " ({$food->brand})" : "") . 
+                " - {$history->quantity} porsi, " . 
+                round($history->total_calories_intaken) . " kkal";
+        }
+
+        // Calculate percentages
+        $caloriePercent = $dailyCalorieTarget > 0 ? round(($currentCalories / $dailyCalorieTarget) * 100) : 0;
+        $sugarPercent = round(($sugarConsumed / 50) * 100);
+        $saltPercent = round(($saltConsumed / 2000) * 100);
+        $fatPercent = round(($fatConsumed / 67) * 100);
+
+        // Determine status
+        $status = match(true) {
+            $caloriePercent > 100 => 'Kalori sudah melebihi target harian!',
+            $caloriePercent >= 80 => 'Sudah mendekati target kalori harian.',
+            $caloriePercent >= 50 => 'Asupan kalori dalam kondisi baik.',
+            default => 'Masih banyak ruang untuk asupan kalori.'
+        };
+
+        $warnings = [];
+        if ($sugarPercent > 100) $warnings[] = 'Gula sudah melebihi batas harian!';
+        if ($saltPercent > 100) $warnings[] = 'Garam sudah melebihi batas harian!';
+        if ($fatPercent > 100) $warnings[] = 'Lemak sudah melebihi batas harian!';
+
+        $context = "\n\n[KONSUMSI HARI INI - " . Carbon::today()->format('d M Y') . "]";
+        $context .= "\nMakanan yang sudah dikonsumsi:";
+        $context .= "\n" . implode("\n", $foodList);
+        $context .= "\n\nTotal Nutrisi:";
+        $context .= "\n- Kalori: " . round($currentCalories) . "/{$dailyCalorieTarget} kkal ({$caloriePercent}%)";
+        $context .= "\n- Gula: " . round($sugarConsumed, 1) . "g / 50g ({$sugarPercent}%)";
+        $context .= "\n- Garam: " . round($saltConsumed) . "mg / 2000mg ({$saltPercent}%)";
+        $context .= "\n- Lemak: " . round($fatConsumed, 1) . "g / 67g ({$fatPercent}%)";
+        $context .= "\n\nStatus: {$status}";
+        
+        if (!empty($warnings)) {
+            $context .= "\nPeringatan: " . implode(", ", $warnings);
+        }
+
+        $context .= "\n\n[INSTRUKSI: Hanya gunakan data diatas ketika menjawab pertanyaan tentang konsumsi atau makanan, hanya ketika ada konteks 'hari ini' atau tanggal (" . Carbon::today()->format('d M Y') . ") agar user tahu data yang dibahas adalah data terkini. Gunakan data konsumsi di atas untuk menjawab pertanyaan tentang apa yang sudah dimakan hari ini, rekap harian, atau memberikan saran nutrisi yang relevan berdasarkan asupan hari ini.]";
+
+        return $context;
     }
 
     #[On('streaming-complete')]
