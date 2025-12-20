@@ -75,6 +75,22 @@
                 @enderror
             </div>
 
+            {{-- Date of Birth Input --}}
+            <div class="relative">
+                <label class="block text-xs font-bold text-[#005461] uppercase tracking-widest mb-2 ml-1">
+                    Tanggal Lahir
+                </label>
+                <div class="flex items-center">
+                    <input wire:model="dateOfBirth" type="date"
+                        class="w-full text-2xl font-light py-4 border-b-2 border-gray-100 focus:border-[#00B7B5] focus:ring-0 transition-all"
+                        max="{{ now()->format('Y-m-d') }}">
+                    <span class="text-xl font-medium text-gray-400 ml-4">📅</span>
+                </div>
+                @error('dateOfBirth')
+                    <span class="text-red-500 text-xs mt-2">{{ $message }}</span>
+                @enderror
+            </div>
+
             {{-- Submit Button --}}
             <div class="pt-6">
                 <button type="submit"

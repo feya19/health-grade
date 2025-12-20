@@ -123,15 +123,27 @@
 
             {{-- Grading Page Action --}}
             <div class="flex justify-center gap-4 mt-6">
-                <button id="scan-again-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition">
-                    Scan Lagi
-                </button>
-                <a href="{{ route('assistant') }}" class="px-6 py-3 bg-hg-primary hover:bg-hg-secondary text-white rounded-xl font-medium transition flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                    </svg>
-                    Chat ke AI
-                </a>
+                @auth
+                    <a href="{{ route('dashboard') }}" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition">
+                        Dashboard
+                    </a>
+                    <a href="{{ route('assistant') }}" class="px-6 py-3 bg-hg-primary hover:bg-hg-secondary text-white rounded-xl font-medium transition flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        AI Chat
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition">
+                        Dashboard
+                    </a>
+                    <a href="{{ route('login') }}" class="px-6 py-3 bg-hg-primary hover:bg-hg-secondary text-white rounded-xl font-medium transition flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        AI Chat
+                    </a>
+                @endauth
             </div>
         </div>
 
@@ -240,8 +252,8 @@
                 document.getElementById('qty-minus')?.addEventListener('click', () => {
                     const input = document.getElementById('consume-qty');
                     const val = parseFloat(input.value) || 1;
-                    if (val > 0.5) {
-                        input.value = (val - 0.5).toFixed(1);
+                    if (val > 0.1) {
+                        input.value = (val - 0.1).toFixed(1);
                         updateEstimatedCalories();
                     }
                 });
@@ -249,7 +261,7 @@
                     const input = document.getElementById('consume-qty');
                     const val = parseFloat(input.value) || 1;
                     if (val < 10) {
-                        input.value = (val + 0.5).toFixed(1);
+                        input.value = (val + 0.1).toFixed(1);
                         updateEstimatedCalories();
                     }
                 });
@@ -696,6 +708,13 @@ Output JSON:
             async function handleConsume() {
                 if (!currentBarcode) return;
                 
+                // Check if user is authenticated
+                const isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+                if (!isAuthenticated) {
+                    window.location.href = '{{ route("login") }}';
+                    return;
+                }
+                
                 const btn = document.getElementById('consume-btn');
                 const successMsg = document.getElementById('consume-success');
                 const qty = parseFloat(document.getElementById('consume-qty').value) || 1;
@@ -862,12 +881,12 @@ Output JSON:
                         {
                             angle: 0,
                             flipH: true,
-                            flipV: true,
+                            flipV: false,
                             label: 'flip horizontal'
                         },
                         {
                             angle: 0,
-                            flipH: true,
+                            flipH: false,
                             flipV: true,
                             label: 'flip vertical'
                         }

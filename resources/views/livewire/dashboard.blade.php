@@ -51,33 +51,60 @@
             </div>
         </div>
 
-        {{-- 3. NUTRIENT CARDS (Gula & Lemak) --}}
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+        {{-- 3. NUTRIENT CARDS (Gula, Garam & Lemak) --}}
+        <div class="grid grid-cols-3 gap-3">
+            {{-- Card Gula --}}
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                 <p class="text-xs text-gray-400 font-bold uppercase">Gula</p>
                 <div class="mt-2 flex items-end justify-between">
-                    <span class="text-2xl font-bold text-hg-dark">{{ $stats['gula_consumed'] }}<span class="text-sm font-normal text-gray-400">g</span></span>
+                    <span class="text-xl font-bold text-hg-dark">{{ round($stats['gula_consumed'], 1) }}<span class="text-xs font-normal text-gray-400">g</span></span>
                     
                     @if(($stats['gula_consumed'] / $stats['gula_limit']) * 100 > 100)
-                        <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     @else
-                        <span class="text-xs font-bold text-orange-400">{{ round(($stats['gula_consumed'] / $stats['gula_limit']) * 100) }}%</span>
+                        <span class="text-[10px] font-bold text-orange-400">{{ round(($stats['gula_consumed'] / $stats['gula_limit']) * 100) }}%</span>
                     @endif
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-3">
+                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
                     <div class="bg-orange-400 h-1.5 rounded-full" style="width: {{ min(100, ($stats['gula_consumed'] / $stats['gula_limit']) * 100) }}%"></div>
                 </div>
+                <p class="text-[10px] text-gray-400 mt-1">Maks {{ $stats['gula_limit'] }}g/hari</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+            {{-- Card Garam --}}
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                <p class="text-xs text-gray-400 font-bold uppercase">Garam</p>
+                <div class="mt-2 flex items-end justify-between">
+                    <span class="text-xl font-bold text-hg-dark">{{ round($stats['garam_consumed']) }}<span class="text-xs font-normal text-gray-400">mg</span></span>
+                    
+                    @if(($stats['garam_consumed'] / $stats['garam_limit']) * 100 > 100)
+                        <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    @else
+                        <span class="text-[10px] font-bold text-blue-400">{{ round(($stats['garam_consumed'] / $stats['garam_limit']) * 100) }}%</span>
+                    @endif
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                    <div class="bg-blue-400 h-1.5 rounded-full" style="width: {{ min(100, ($stats['garam_consumed'] / $stats['garam_limit']) * 100) }}%"></div>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">Maks {{ number_format($stats['garam_limit']) }}mg/hari</p>
+            </div>
+
+            {{-- Card Lemak --}}
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                 <p class="text-xs text-gray-400 font-bold uppercase">Lemak</p>
                 <div class="mt-2 flex items-end justify-between">
-                    <span class="text-2xl font-bold text-hg-dark">{{ $stats['lemak_consumed'] }}<span class="text-sm font-normal text-gray-400">g</span></span>
-                    <span class="text-xs font-bold text-yellow-400">{{ round(($stats['lemak_consumed'] / $stats['lemak_limit']) * 100) }}%</span>
+                    <span class="text-xl font-bold text-hg-dark">{{ round($stats['lemak_consumed'], 1) }}<span class="text-xs font-normal text-gray-400">g</span></span>
+                    
+                    @if(($stats['lemak_consumed'] / $stats['lemak_limit']) * 100 > 100)
+                        <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    @else
+                        <span class="text-[10px] font-bold text-yellow-400">{{ round(($stats['lemak_consumed'] / $stats['lemak_limit']) * 100) }}%</span>
+                    @endif
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-3">
+                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
                     <div class="bg-yellow-400 h-1.5 rounded-full" style="width: {{ min(100, ($stats['lemak_consumed'] / $stats['lemak_limit']) * 100) }}%"></div>
                 </div>
+                <p class="text-[10px] text-gray-400 mt-1">Maks {{ $stats['lemak_limit'] }}g/hari</p>
             </div>
         </div>
 

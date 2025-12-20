@@ -140,7 +140,7 @@
             </div>
             @endif
 
-            <form wire:submit.prevent="sendMessage" class="relative flex items-center gap-2 bg-gray-100 p-1.5 rounded-3xl border border-transparent focus-within:border-hg-primary/30 focus-within:bg-white focus-within:shadow-md transition-all">
+            <form wire:submit.prevent="sendMessage" class="relative flex items-start gap-2 bg-gray-100 p-1.5 rounded-3xl border border-transparent focus-within:border-hg-primary/30 focus-within:bg-white focus-within:shadow-md transition-all">
                 
                 {{-- Image Upload Button --}}
                 <label class="p-2.5 text-gray-500 hover:text-hg-primary hover:bg-white rounded-full transition cursor-pointer shrink-0">
@@ -156,16 +156,27 @@
                     >
                 </label>
 
-                {{-- Input Field --}}
-                <input 
-                    type="text" 
+                {{-- Textarea Field (Auto-expand) --}}
+                <textarea 
                     wire:model="prompt"
                     placeholder="Ketik pesan..." 
-                    class="w-full bg-transparent border-none focus:ring-0 text-hg-dark placeholder-gray-400 py-2 text-sm"
+                    class="w-full bg-transparent border-none focus:ring-0 text-hg-dark placeholder-gray-400 text-sm resize-none overflow-hidden leading-[36px]"
                     :disabled="$wire.isStreaming"
-                    @keydown.enter.prevent="if (!$wire.isStreaming) $wire.sendMessage()"
+                    @keydown.enter.prevent="
+                        if ($event.shiftKey || $event.metaKey) {
+                            $el.value += '\n';
+                            $el.dispatchEvent(new Event('input'));
+                            $el.style.height = 'auto';
+                            $el.style.height = Math.min($el.scrollHeight, 120) + 'px';
+                        } else if (!$wire.isStreaming) {
+                            $wire.sendMessage();
+                        }
+                    "
+                    @input="$el.style.height = 'auto'; $el.style.height = Math.min($el.scrollHeight, 120) + 'px'"
                     autocomplete="off"
-                >
+                    rows="1"
+                    style="min-height: 36px; max-height: 120px; padding-top: 0; padding-bottom: 0;"
+                ></textarea>
                 
                 {{-- Send Button --}}
                 <button 

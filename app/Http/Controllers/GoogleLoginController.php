@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use Exception;
-use phpseclib3\Crypt\Hash;
 
 class GoogleLoginController extends Controller
 {
@@ -24,7 +23,7 @@ class GoogleLoginController extends Controller
 
             if ($finduser) {
                 Auth::login($finduser);
-                return redirect()->intended('dashboard');
+                return $this->redirectBasedOnBioStatus($finduser);
             } else {
                 $newUser = User::updateOrCreate(['email' => $user->email], [
                     'name' => $user->name,
@@ -35,10 +34,33 @@ class GoogleLoginController extends Controller
 
                 Auth::login($newUser);
 
-                return redirect()->intended('dashboard');
+                // New user always redirected to bio page
+                return redirect()->intended('bio');
             }
         } catch (Exception $e) {
             dd($e->getMessage());
         }
+    }
+
+    /**
+     * Redirect user based on bio completion status
+     */
+    protected function redirectBasedOnBioStatus(User $user)
+    {
+        if ($this->isBioComplete($user)) {
+            return redirect()->intended('dashboard');
+        }
+        return redirect()->intended('bio');
+    }
+
+    /**
+     * Check if user has completed all bio information
+     */
+    protected function isBioComplete(User $user): bool
+    {
+        return $user->gender !== null
+            && $user->berat_badan !== null
+            && $user->tinggi_badan !== null
+            && $user->date_of_birth !== null;
     }
 }
