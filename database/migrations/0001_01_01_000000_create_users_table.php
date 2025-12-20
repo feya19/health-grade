@@ -18,8 +18,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('google_id')->nullable()->unique();
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->decimal('berat_badan', 5, 2)->nullable();
             $table->decimal('tinggi_badan', 5, 2)->nullable();
+            $table->date('date_of_birth')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

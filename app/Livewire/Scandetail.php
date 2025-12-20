@@ -4,47 +4,88 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Title;
+use App\Models\Food;
+use App\Models\ScanHistory;
+use App\Models\AiAssistant;
+use Illuminate\Support\Facades\Auth;
 
 #[Title('Detail Produk - HealthGrade')]
 class ScanDetail extends Component
 {
-    public $product;
+    public Food $food; // Type hinting model
+    public $quantity = 1;
+    
+    // Variabel Chat AI
+    public $userPrompt = '';
+    public $aiResponse = null;
+    public $isChatting = false;
 
     public function mount($id)
     {
-        // MOCK DATA SINGLE PRODUCT
-        // Di aplikasi nyata: $this->product = Product::findOrFail($id);
-        $this->product = [
-            'id' => $id,
-            'name' => 'Keripik Kentang Asin',
-            'brand' => 'Indofood',
-            'barcode' => '899990909090',
-            'grade' => 'D',
-            'image' => null, // null = pakai placeholder
-            'date_scanned' => '10 Okt 2025, 14:30',
-            
-            // Nutrisi per sajian
-            'nutrition' => [
-                'calories' => 250,
-                'sugar' => 12,    // gram (Tinggi)
-                'salt' => 450,    // mg (Tinggi)
-                'fat' => 15,      // gram (Tinggi)
-                'protein' => 2,
-            ],
-
-            // Analisis AI (Simulasi response LLM)
-            'ai_analysis' => "Produk ini masuk dalam kategori **Grade D** karena kandungan garam dan lemak jenuhnya yang sangat tinggi. Konsumsi berlebihan dapat meningkatkan risiko hipertensi. Sebaiknya batasi konsumsi maksimal 1 bungkus per minggu atau cari alternatif keripik panggang."
-        ];
+        // Ambil data makanan berdasarkan ID
+        $this->food = Food::findOrFail($id);
     }
 
-    public function delete()
+    // Fitur: Catat Makan (Update history atau buat baru)
+    public function consume()
     {
-        // Logic hapus
-        return $this->redirect(route('history'), navigate: true);
+        ScanHistory::create([
+            'user_id' => Auth::id(),
+            'food_id' => $this->food->id,
+            'quantity' => $this->quantity,
+            'total_calories_intaken' => $this->food->calories * $this->quantity,
+            'action_type' => 'consumed'
+        ]);
+
+        session()->flash('success', 'Berhasil dicatat ke asupan harian!');
+        return $this->redirect(route('dashboard'), navigate: true);
+    }
+
+    // Fitur: Tanya AI
+    public function askAi()
+    {
+        $this->validate(['userPrompt' => 'required|string|min:3']);
+        $this->isChatting = true;
+
+        // --- SIMULASI CALL LLM (Ganti dengan API Call asli nanti) ---
+        // $response = OpenAi::ask("Konteks makanan: {$this->food->name}. Pertanyaan: {$this->userPrompt}");
+        
+        $dummyResponses = [
+            'aman' => "Untuk {$this->food->name}, konsumsinya masih aman asalkan tidak melebihi 1 porsi karena kandungan gulanya.",
+            'diet' => "Produk ini memiliki grade {$this->food->grade}. Jika sedang diet ketat, sebaiknya kurangi porsinya.",
+            'default' => "Analisis nutrisi: Gula {$this->food->sugar_g}g, Garam {$this->food->salt_mg}mg. Harap bijak mengonsumsinya."
+        ];
+        
+        $finalResponse = $dummyResponses['default']; // Fallback
+        // ------------------------------------------------------------
+
+        // Simpan ke Database
+        AiAssistant::create([
+            'user_id' => Auth::id(),
+            'food_id' => $this->food->id,
+            'user_prompt' => $this->userPrompt,
+            'ai_response' => $finalResponse,
+            'context_data' => [
+                'nutrition' => $this->food->toArray(),
+                'grade' => $this->food->grade
+            ]
+        ]);
+
+        $this->aiResponse = $finalResponse;
+        $this->userPrompt = ''; // Reset input
     }
 
     public function render()
     {
-        return view('livewire.scan-detail');
+        // Ambil riwayat chat sebelumnya untuk makanan ini (Opsional)
+        $chatHistory = AiAssistant::where('user_id', Auth::id())
+            ->where('food_id', $this->food->id)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('livewire.scan-detail', [
+            'chatHistory' => $chatHistory
+        ]);
     }
 }
