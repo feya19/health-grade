@@ -121,7 +121,14 @@ class AiConsultation extends Component
 
     protected function prepareMessagesForAPI(): array
     {
-        $systemPrompt = config('app.llm_model.global_system_prompt') ?: 'Kamu adalah asisten nutrisi HealthGrade. Jawab dengan ramah dan informatif dalam Bahasa Indonesia.';
+        $user = Auth::user();
+        
+        // Build personalized system prompt with user data
+        $basePrompt = config('app.llm_model.global_system_prompt') ?: 'Kamu adalah asisten nutrisi HealthGrade. Jawab dengan ramah dan informatif dalam Bahasa Indonesia.';
+        
+        // Add user profile context if available
+        $userContext = $this->buildUserContext($user);
+        $systemPrompt = $basePrompt . $userContext;
         
         $apiMessages = [
             ['role' => 'system', 'content' => $systemPrompt]
@@ -150,6 +157,51 @@ class AiConsultation extends Component
         }
 
         return $apiMessages;
+    }
+    
+    protected function buildUserContext($user): string
+    {
+        $context = [];
+        
+        // Gender
+        if ($user->gender) {
+            $genderText = $user->gender === 'male' ? 'laki-laki' : 'perempuan';
+            $context[] = "Jenis kelamin: {$genderText}";
+        }
+        
+        // Age
+        if ($user->age) {
+            $context[] = "Usia: {$user->age} tahun";
+        }
+        
+        // Weight (berat_badan)
+        if ($user->berat_badan) {
+            $context[] = "Berat badan: {$user->berat_badan} kg";
+        }
+        
+        // Height (tinggi_badan)
+        if ($user->tinggi_badan) {
+            $context[] = "Tinggi badan: {$user->tinggi_badan} cm";
+        }
+        
+        // Calculate BMI if both weight and height available
+        if ($user->berat_badan && $user->tinggi_badan) {
+            $heightM = $user->tinggi_badan / 100;
+            $bmi = round($user->berat_badan / ($heightM * $heightM), 1);
+            $bmiCategory = match(true) {
+                $bmi < 18.5 => 'Kurus',
+                $bmi < 25 => 'Normal',
+                $bmi < 30 => 'Overweight',
+                default => 'Obesitas'
+            };
+            $context[] = "BMI: {$bmi} ({$bmiCategory})";
+        }
+        
+        if (empty($context)) {
+            return '';
+        }
+        
+        return "\n\n[PROFIL PENGGUNA - Gunakan informasi ini untuk memberikan saran yang lebih personal]\n" . implode("\n", $context);
     }
 
     #[On('streaming-complete')]

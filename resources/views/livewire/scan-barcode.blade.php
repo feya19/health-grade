@@ -862,12 +862,12 @@ Output JSON:
                         {
                             angle: 0,
                             flipH: true,
-                            flipV: true,
+                            flipV: false,
                             label: 'flip horizontal'
                         },
                         {
                             angle: 0,
-                            flipH: true,
+                            flipH: false,
                             flipV: true,
                             label: 'flip vertical'
                         }
