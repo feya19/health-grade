@@ -18,6 +18,7 @@ Route::post('/products/{barcode}/consume', [ProductController::class, 'consume']
 
 Route::get('/scan', ScanBarcode::class)->name('scan.barcode');
 Route::get('/bio', Bio::class)->middleware(['auth'])->name('bio');
+Route::post('/assistant/response', [App\Http\Controllers\ChatStreamController::class, 'response'])->name('assistant.response');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
@@ -25,7 +26,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/scan/{id}', ScanDetail::class)->name('scan.detail');
     Route::get('/assistant', AiConsultation::class)->name('assistant');
     Route::post('/assistant/stream', [App\Http\Controllers\ChatStreamController::class, 'stream'])->name('assistant.stream');
-    Route::post('/assistant/response', [App\Http\Controllers\ChatStreamController::class, 'response'])->name('assistant.response');
     Route::get('/profile', Profile::class)->name('profile');
 });
 

@@ -172,15 +172,30 @@
                 </div>
             </div>
 
-            <label for="nutrition-label-upload" class="cursor-pointer block">
-                <div class="flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-600 text-white py-4 px-6 rounded-xl transition font-medium">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>Foto Tabel Nutrisi</span>
-                </div>
-            </label>
-            <input type="file" id="nutrition-label-upload" accept="image/*" capture="environment" class="hidden">
+            <div class="flex gap-3">
+                {{-- Camera Button --}}
+                <label for="nutrition-label-camera" class="cursor-pointer flex-1">
+                    <div class="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white py-4 px-4 rounded-xl transition font-medium">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Kamera</span>
+                    </div>
+                </label>
+                <input type="file" id="nutrition-label-camera" accept="image/*" capture="environment" class="hidden">
+
+                {{-- Gallery Button --}}
+                <label for="nutrition-label-gallery" class="cursor-pointer flex-1">
+                    <div class="flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-700 py-4 px-4 rounded-xl transition font-medium border border-amber-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Galeri</span>
+                    </div>
+                </label>
+                <input type="file" id="nutrition-label-gallery" accept="image/*" class="hidden">
+            </div>
 
             <div id="ai-extracting" style="display: none;" class="mt-4 text-center">
                 <svg class="w-8 h-8 animate-spin text-amber-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -243,7 +258,8 @@
                 document.getElementById('barcode-upload')?.addEventListener('change', handleImageUpload);
                 document.getElementById('scan-again-btn')?.addEventListener('click', resetScanner);
                 document.getElementById('error-scan-again')?.addEventListener('click', resetScanner);
-                document.getElementById('nutrition-label-upload')?.addEventListener('change', handleNutritionLabelUpload);
+                document.getElementById('nutrition-label-camera')?.addEventListener('change', handleNutritionLabelUpload);
+                document.getElementById('nutrition-label-gallery')?.addEventListener('change', handleNutritionLabelUpload);
                 document.getElementById('ai-confirm-btn')?.addEventListener('click', confirmAIExtraction);
                 document.getElementById('ai-retry-btn')?.addEventListener('click', retryAIExtraction);
                 
@@ -768,7 +784,8 @@ Output JSON:
                 }
 
                 document.getElementById('barcode-upload').value = '';
-                document.getElementById('nutrition-label-upload').value = '';
+                document.getElementById('nutrition-label-camera').value = '';
+                document.getElementById('nutrition-label-gallery').value = '';
                 document.getElementById('input-product-name').value = '';
                 document.getElementById('input-product-brand').value = '';
                 document.getElementById('consume-qty').value = '1';
