@@ -10,14 +10,23 @@ new class extends Component
 {
     public string $name = '';
     public string $email = '';
+    public ?string $gender = null;
+    public ?float $weight = null;
+    public ?float $height = null;
+    public ?string $dateOfBirth = null;
 
     /**
      * Mount the component.
      */
     public function mount(): void
     {
-        $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
+        $user = Auth::user();
+        $this->name = $user->name;
+        $this->email = $user->email;
+        $this->gender = $user->gender;
+        $this->weight = $user->berat_badan;
+        $this->height = $user->tinggi_badan;
+        $this->dateOfBirth = $user->date_of_birth?->format('Y-m-d');
     }
 
     /**
@@ -30,9 +39,20 @@ new class extends Component
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+            'gender' => ['nullable', 'in:male,female'],
+            'weight' => ['nullable', 'numeric', 'min:20', 'max:300'],
+            'height' => ['nullable', 'numeric', 'min:50', 'max:250'],
+            'dateOfBirth' => ['nullable', 'date', 'before:today'],
         ]);
 
-        $user->fill($validated);
+        $user->fill([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'gender' => $validated['gender'],
+            'berat_badan' => $validated['weight'],
+            'tinggi_badan' => $validated['height'],
+            'date_of_birth' => $validated['dateOfBirth'],
+        ]);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -110,6 +130,44 @@ new class extends Component
                     @endif
                 </div>
             @endif
+        </div>
+
+        {{-- Gender --}}
+        <div>
+            <x-input-label for="gender" :value="__('Gender')" class="!text-gray-700" />
+            <select wire:model="gender" id="gender" name="gender" 
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-hg-primary focus:ring-hg-primary">
+                <option value="">Pilih Gender</option>
+                <option value="male">Laki-laki</option>
+                <option value="female">Perempuan</option>
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('gender')" />
+        </div>
+
+        {{-- Weight & Height --}}
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <x-input-label for="weight" :value="__('Berat Badan (kg)')" class="!text-gray-700" />
+                <x-text-input wire:model="weight" id="weight" name="weight" type="number" step="0.1" min="20" max="300"
+                    class="mt-1 block w-full !bg-white !text-gray-900 !border-gray-300 focus:!border-hg-primary focus:!ring-hg-primary" 
+                    placeholder="60" />
+                <x-input-error class="mt-2" :messages="$errors->get('weight')" />
+            </div>
+            <div>
+                <x-input-label for="height" :value="__('Tinggi Badan (cm)')" class="!text-gray-700" />
+                <x-text-input wire:model="height" id="height" name="height" type="number" step="0.1" min="50" max="250"
+                    class="mt-1 block w-full !bg-white !text-gray-900 !border-gray-300 focus:!border-hg-primary focus:!ring-hg-primary" 
+                    placeholder="165" />
+                <x-input-error class="mt-2" :messages="$errors->get('height')" />
+            </div>
+        </div>
+
+        {{-- Date of Birth --}}
+        <div>
+            <x-input-label for="dateOfBirth" :value="__('Tanggal Lahir')" class="!text-gray-700" />
+            <x-text-input wire:model="dateOfBirth" id="dateOfBirth" name="dateOfBirth" type="date"
+                class="mt-1 block w-full !bg-white !text-gray-900 !border-gray-300 focus:!border-hg-primary focus:!ring-hg-primary" />
+            <x-input-error class="mt-2" :messages="$errors->get('dateOfBirth')" />
         </div>
 
         <div class="flex items-center gap-4">
